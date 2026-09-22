@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Project & Contract Oversight — AdvIT Staff{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Platform Projects & Contracts Oversight</h2>
+      <p class="text-muted small mb-0">Monitor active projects, contract milestones, and escrow disbursements.</p>
+    </div>
+    <a href="{% url 'admin_panel:dashboard' %}" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+    </a>
+  </div>
+
+  <div class="card card-adv border-0 shadow-sm overflow-hidden mb-5" style="border-radius: 20px;">
+    <div class="p-3 bg-light border-bottom">
+      <h6 class="fw-bold mb-0"><i class="bi bi-folder-check me-2 text-primary"></i> Active & Recent Contracts</h6>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Contract ID</th>
+            <th>Project</th>
+            <th>Client</th>
+            <th>Hired Talent</th>
+            <th>Total Amount</th>
+            <th>Status</th>
+            <th class="pe-4 text-end">Workspace</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in contracts %}
+            <tr>
+              <td class="ps-4 font-monospace small">#CNT-{{ c.id }}</td>
+              <td class="fw-bold">{{ c.project.title }}</td>
+              <td>{{ c.client.user.display_name }}</td>
+              <td>{{ c.freelancer.user.display_name|default:c.team.name }}</td>
+              <td class="fw-bold text-primary">${{ c.total_amount }}</td>
+              <td><span class="badge bg-success bg-opacity-25 text-success">{{ c.get_status_display }}</span></td>
+              <td class="pe-4 text-end">
+                <a href="{% url 'projects:workspace' pk=c.project.id %}" class="btn btn-sm btn-adv-outline">Inspect Workspace</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">No contracts initiated yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

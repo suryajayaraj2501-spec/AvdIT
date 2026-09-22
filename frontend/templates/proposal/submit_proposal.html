@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}Submit Proposal for {{ project.title }} — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- AI Proposal Generator Banner -->
+      <div class="card p-4 mb-4 border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h5 class="fw-bold mb-1"><i class="bi bi-stars text-warning me-2"></i> AI Proposal Generator</h5>
+            <small class="opacity-80">Let Gemini AI draft a tailored, high-converting cover letter based on this project's requirements.</small>
+          </div>
+          <button type="button" id="btnAiDraftProposal" class="btn btn-warning fw-bold btn-sm px-3">
+            <i class="bi bi-magic me-1"></i> Generate AI Proposal
+          </button>
+        </div>
+      </div>
+
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <h3 class="fw-bold mb-1">Submit Your Proposal</h3>
+        <p class="text-muted small mb-4">Applying to: <strong>{{ project.title }}</strong> (Budget: ${{ project.budget }})</p>
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <!-- Solo vs Team Selection -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Apply As</label>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="apply_as" id="apply_solo" value="solo" checked onchange="toggleTeamSelect(false)">
+                <label class="btn btn-outline-primary w-100 py-2" for="apply_solo">
+                  <i class="bi bi-person-fill me-1"></i> Solo Freelancer
+                </label>
+              </div>
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="apply_as" id="apply_team" value="team" onchange="toggleTeamSelect(true)">
+                <label class="btn btn-outline-primary w-100 py-2" for="apply_team">
+                  <i class="bi bi-people-fill me-1"></i> As a Team Squad
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Selector (Hidden by default) -->
+          <div class="mb-3 d-none" id="teamSelectGroup">
+            <label class="form-label fw-semibold">Select Squad</label>
+            <select name="team_id" class="form-select">
+              {% for team in user_teams %}
+                <option value="{{ team.id }}">{{ team.name }} ({{ team.members.count }} Members)</option>
+              {% empty %}
+                <option disabled>You are not a member of any squad yet. Create one under 'My Teams'.</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Your Bid Amount ($ USD)</label>
+              <input type="number" name="bid_amount" class="form-control" value="{{ project.budget }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Estimated Delivery (Days)</label>
+              <input type="number" name="estimated_duration_days" class="form-control" value="14" required>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Cover Letter / Pitch</label>
+            <textarea name="cover_letter" id="coverLetterInput" class="form-control" rows="8" placeholder="Explain your technical approach, relevant experience, and proposed timeline..." required></textarea>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              <i class="bi bi-send-fill me-2"></i> Submit Proposal to Client
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleTeamSelect(show) {
+  const grp = document.getElementById('teamSelectGroup');
+  if (show) grp.classList.remove('d-none');
+  else grp.classList.add('d-none');
+}
+
+document.getElementById('btnAiDraftProposal').addEventListener('click', async () => {
+  const btn = document.getElementById('btnAiDraftProposal');
+  const letter = document.getElementById('coverLetterInput');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Drafting AI Proposal...';
+
+  try {
+    const res = await fetch('/api/ai/generate-proposal/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken') || ''
+      },
+      body: JSON.stringify({
+        project_id: '{{ project.id }}',
+        project_title: '{{ project.title|escapejs }}',
+        project_desc: '{{ project.description|escapejs }}'
+      })
+    });
+
+    const data = await res.json();
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-magic me-1"></i> Generate AI Proposal';
+
+    if (data.cover_letter) {
+      letter.value = data.cover_letter;
+    }
+  } catch (e) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-magic me-1"></i> Generate AI Proposal';
+    alert("Error generating proposal.");
+  }
+});
+</script>
+{% endblock %}

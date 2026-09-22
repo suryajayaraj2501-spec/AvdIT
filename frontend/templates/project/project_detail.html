@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ project.title }} — AdvIT Project{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Main Project Info -->
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm mb-4" style="border-radius: 20px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="badge badge-adv badge-adv-primary text-uppercase">{{ project.category }}</span>
+          <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">{{ project.get_status_display }}</span>
+        </div>
+
+        <h2 class="fw-bold mb-3">{{ project.title }}</h2>
+
+        <div class="d-flex flex-wrap gap-3 text-muted small mb-4 pb-3 border-bottom">
+          <span><i class="bi bi-clock me-1"></i> Posted {{ project.created_at|timesince }} ago</span>
+          <span><i class="bi bi-person me-1"></i> {{ project.get_project_type_display }}</span>
+          {% if project.deadline %}<span><i class="bi bi-calendar me-1"></i> Due {{ project.deadline }}</span>{% endif %}
+        </div>
+
+        <h5 class="fw-bold mb-3">Project Requirements & Scope</h5>
+        <div class="text-dark lh-lg mb-4" style="white-space: pre-line;">
+          {{ project.description }}
+        </div>
+
+        <h5 class="fw-bold mb-3">Required Skillsets</h5>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% for ps in project.project_skills.all %}
+            <span class="badge bg-light text-dark border p-2">
+              <i class="bi bi-check2 text-primary me-1"></i> {{ ps.skill.name }} ({{ ps.get_required_level_display }})
+            </span>
+          {% empty %}
+            <span class="text-muted small">No specific skills tagged.</span>
+          {% endfor %}
+        </div>
+
+        {% if project.attachments.all %}
+          <h5 class="fw-bold mb-3">Project Attachments</h5>
+          <div class="d-flex flex-column gap-2 mb-4">
+            {% for att in project.attachments.all %}
+              <a href="{{ att.file.url }}" target="_blank" class="p-3 bg-light rounded-3 text-decoration-none text-dark d-flex align-items-center justify-content-between border">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-file-earmark-arrow-down-fill text-primary fs-5"></i>
+                  <span class="small fw-bold">{{ att.name|default:"Attachment File" }}</span>
+                </div>
+                <span class="badge bg-secondary">Download</span>
+              </a>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if is_owner %}
+          <!-- Received Proposals for Project Owner -->
+          <div class="mt-5 pt-4 border-top">
+            <h4 class="fw-bold mb-3">Received Proposals ({{ project.proposals.count }})</h4>
+            <div class="d-flex flex-column gap-3">
+              {% for prop in project.proposals.all %}
+                <div class="card p-3 border rounded-3 bg-light">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                      <h6 class="fw-bold mb-0">{{ prop.applicant_name }}</h6>
+                      <small class="text-muted">Bid: <strong class="text-primary">${{ prop.bid_amount }}</strong> in {{ prop.estimated_duration_days }} days</small>
+                    </div>
+                    <span class="badge badge-adv badge-adv-primary text-uppercase">{{ prop.get_status_display }}</span>
+                  </div>
+                  <p class="small text-dark mb-3" style="white-space: pre-line;">{{ prop.cover_letter }}</p>
+                  
+                  {% if prop.status == 'pending' or prop.status == 'shortlisted' %}
+                    <div class="d-flex gap-2">
+                      <form method="POST" action="{% url 'proposals:accept' proposal_id=prop.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-success fw-bold">
+                          <i class="bi bi-check-circle-fill me-1"></i> Accept & Create Contract
+                        </button>
+                      </form>
+                      <form method="POST" action="{% url 'proposals:reject' proposal_id=prop.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                      </form>
+                    </div>
+                  {% endif %}
+                </div>
+              {% empty %}
+                <p class="text-muted small">No proposals submitted yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Sidebar Action Panel -->
+    <div class="col-lg-4">
+      <div class="card card-adv p-4 border-0 shadow-sm mb-4" style="border-radius: 20px;">
+        <div class="text-center mb-4">
+          <small class="text-muted text-uppercase fw-bold">Project Budget</small>
+          <div class="display-5 fw-bold text-primary">${{ project.budget }}</div>
+          <span class="badge bg-light text-muted border">Escrow Protected</span>
+        </div>
+
+        {% if user.is_authenticated and user.is_freelancer %}
+          {% if has_applied %}
+            <div class="alert alert-info py-2 small text-center mb-3">
+              <i class="bi bi-check-circle-fill me-1"></i> You have already applied.
+            </div>
+            <a href="{% url 'proposals:my_proposals' %}" class="btn btn-adv-outline w-100 py-2">View Application</a>
+          {% else %}
+            <a href="{% url 'proposals:submit' project_id=project.id %}" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6 mb-2">
+              <i class="bi bi-send-fill me-2"></i> Submit Proposal
+            </a>
+          {% endif %}
+        {% elif not user.is_authenticated %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6 mb-2">
+            Log In to Apply
+          </a>
+        {% elif is_owner %}
+          <a href="{% url 'projects:workspace' pk=project.id %}" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6 mb-2">
+            <i class="bi bi-kanban me-2"></i> Open Workspace
+          </a>
+        {% endif %}
+
+        <div class="border-top pt-4 mt-3">
+          <h6 class="fw-bold mb-3">About the Client</h6>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="avatar-placeholder" style="width: 44px; height: 44px;">
+              {{ project.client.user.username|make_list|first|upper }}
+            </div>
+            <div>
+              <div class="fw-bold">{{ project.client.company_name|default:project.client.user.display_name }}</div>
+              <small class="text-muted">{{ project.client.industry }}</small>
+            </div>
+          </div>
+          <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i> {{ project.client.location|default:"Global" }}</div>
+          <div class="small text-muted mb-1"><i class="bi bi-shield-check me-1"></i> Verified Client</div>
+          <div class="small text-muted"><i class="bi bi-star-fill text-warning me-1"></i> {{ project.client.rating }} Rating ({{ project.client.reviews_count }} reviews)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

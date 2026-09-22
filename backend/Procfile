@@ -1,0 +1,1 @@
+web: gunicorn AdvIT.wsgi --log-file -

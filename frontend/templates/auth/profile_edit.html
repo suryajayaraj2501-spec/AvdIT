@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Settings — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 20px;">
+        <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+          <div>
+            <h3 class="fw-bold mb-1">Account & Profile Settings</h3>
+            <span class="badge badge-adv badge-adv-primary text-uppercase">{{ user.get_role_display }}</span>
+          </div>
+          {% if user.avatar %}
+            <img src="{{ user.avatar.url }}" alt="avatar" class="avatar-img avatar-lg">
+          {% endif %}
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">First Name</label>
+              {{ form.first_name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Last Name</label>
+              {{ form.last_name }}
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email</label>
+              {{ form.email }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Phone Number</label>
+              {{ form.phone }}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Location / Country</label>
+            {{ form.location }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Bio / Professional Summary</label>
+            {{ form.bio }}
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Website</label>
+              {{ form.website }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">GitHub URL</label>
+              {{ form.github }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">LinkedIn URL</label>
+              {{ form.linkedin }}
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Profile Photo / Avatar</label>
+            {{ form.avatar }}
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <a href="{% url 'accounts:dashboard_redirect' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-adv-primary px-4 fw-bold">Save Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

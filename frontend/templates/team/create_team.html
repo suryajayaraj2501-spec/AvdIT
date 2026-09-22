@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Create a Team Squad — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <h3 class="fw-bold mb-1">Assemble Your Team Squad</h3>
+        <p class="text-muted small mb-4">Band together with other designers, engineers, and AI specialists to bid on larger enterprise projects.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Team / Squad Name</label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Apex AI Studio, Quantum DevOps Squad" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Short Tagline</label>
+            <input type="text" name="tagline" class="form-control" placeholder="e.g. Full-Stack AI & Cloud Engineering Squad" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Squad Description & Experience</label>
+            <textarea name="description" class="form-control" rows="5" placeholder="Detail your squad's capabilities, past achievements, and collaborative delivery approach..."></textarea>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Combined Estimated Rate ($/hr)</label>
+              <input type="number" name="hourly_rate" class="form-control" value="120" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Squad Avatar / Logo</label>
+              <input type="file" name="avatar" class="form-control">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Primary Core Skills (Hold Ctrl to select)</label>
+            <select name="skills" class="form-select" multiple style="height: 120px;">
+              {% for s in all_skills %}
+                <option value="{{ s.id }}">{{ s.name }} ({{ s.category }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              <i class="bi bi-people-fill me-2"></i> Launch Team Squad
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

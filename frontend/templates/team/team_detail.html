@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ team.name }} — AdvIT Squad Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Main Squad Overview -->
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm mb-4" style="border-radius: 24px;">
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-4 mb-4 pb-4 border-bottom">
+          {% if team.avatar %}
+            <img src="{{ team.avatar.url }}" alt="{{ team.name }}" class="avatar-img avatar-xl">
+          {% else %}
+            <div class="avatar-placeholder avatar-xl fs-2">
+              {{ team.name|make_list|first|upper }}
+            </div>
+          {% endif %}
+
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge badge-adv badge-adv-primary">ACTIVE SQUAD</span>
+              <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">Available</span>
+            </div>
+            <h2 class="fw-bold mb-1">{{ team.name }}</h2>
+            <p class="text-muted mb-2">{{ team.tagline }}</p>
+            <div class="d-flex align-items-center gap-3 text-muted small">
+              <span class="text-warning"><i class="bi bi-star-fill"></i> {{ team.rating }} ({{ team.reviews_count }} reviews)</span>
+              <span><i class="bi bi-people me-1"></i> {{ team.members.count }} Specialists</span>
+              <span><i class="bi bi-check-circle me-1"></i> {{ team.completed_projects_count }} Completed Squad Projects</span>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="fw-bold mb-3">About the Squad</h5>
+        <p class="text-dark lh-lg mb-4" style="white-space: pre-line;">{{ team.description|default:"Specialized squad built to execute full-lifecycle software and AI projects." }}</p>
+
+        <!-- Squad Roster List -->
+        <h5 class="fw-bold mb-3"><i class="bi bi-people-fill text-primary me-2"></i> Squad Specialists ({{ team.members.count }})</h5>
+        <div class="row g-3 mb-4">
+          {% for m in team.members.all %}
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
+                {% if m.user.avatar %}
+                  <img src="{{ m.user.avatar.url }}" class="avatar-img" style="width: 44px; height: 44px;">
+                {% else %}
+                  <div class="avatar-placeholder" style="width: 44px; height: 44px; font-size: 1rem;">
+                    {{ m.user.username|make_list|first|upper }}
+                  </div>
+                {% endif %}
+                <div>
+                  <div class="fw-bold small">{{ m.user.display_name }}</div>
+                  <span class="badge bg-primary-subtle text-primary" style="font-size: 0.7rem;">{{ m.role_in_team }}</span>
+                  {% if m.is_lead %}
+                    <span class="badge bg-warning-subtle text-warning-emphasis" style="font-size: 0.65rem;">Lead</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Skills Covered by Team -->
+        <h5 class="fw-bold mb-3">Covered Technologies & Disciplines</h5>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% for ts in team.team_skills.all %}
+            <span class="badge bg-white text-dark border p-2 shadow-sm">
+              <i class="bi bi-check-lg text-success me-1"></i> {{ ts.skill.name }}
+            </span>
+          {% empty %}
+            <span class="text-muted small">Full-Stack, UI/UX, AI Engineering</span>
+          {% endfor %}
+        </div>
+
+        <!-- Team Leader Admin Invite Section -->
+        {% if is_lead and available_freelancers %}
+          <div class="mt-5 pt-4 border-top">
+            <h5 class="fw-bold mb-2"><i class="bi bi-person-plus text-primary me-2"></i> Invite a Specialist to Squad</h5>
+            <form method="POST" action="{% url 'teams:invite' team_id=team.id %}" class="p-3 bg-light rounded-3 border">
+              {% csrf_token %}
+              <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Select Freelancer</label>
+                  <select name="user_id" class="form-select form-select-sm" required>
+                    {% for fl in available_freelancers %}
+                      <option value="{{ fl.id }}">{{ fl.display_name }} ({{ fl.username }})</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-bold">Role in Squad</label>
+                  <input type="text" name="role_in_team" class="form-control form-control-sm" placeholder="e.g. AI Prompt Specialist" required>
+                </div>
+              </div>
+              <div class="mb-2">
+                <input type="text" name="message" class="form-control form-control-sm" placeholder="Personalized invite message...">
+              </div>
+              <button type="submit" class="btn btn-adv-primary btn-sm fw-bold">Send Squad Invitation</button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Action & Hire Card -->
+    <div class="col-lg-4">
+      <div class="card card-adv p-4 border-0 shadow-sm sticky-top" style="top: 90px; border-radius: 20px;">
+        <div class="text-center mb-4">
+          <small class="text-muted text-uppercase fw-bold">Combined Squad Rate</small>
+          <div class="display-5 fw-bold text-primary">${{ team.hourly_rate }}<span class="fs-6 text-muted">/hr</span></div>
+          <span class="badge bg-light text-muted border">Multi-Specialist Execution</span>
+        </div>
+
+        {% if user.is_authenticated and user != team.created_by %}
+          <a href="{% url 'chat:start_conversation' user_id=team.created_by.id %}" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6 mb-2">
+            <i class="bi bi-chat-quote-fill me-2"></i> Hire / Consult Squad
+          </a>
+        {% elif not user.is_authenticated %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6 mb-2">
+            Log In to Hire Squad
+          </a>
+        {% endif %}
+
+        <div class="border-top pt-3 mt-3">
+          <div class="d-flex align-items-center gap-3">
+            <div class="avatar-placeholder" style="width: 40px; height: 40px;">
+              {{ team.created_by.username|make_list|first|upper }}
+            </div>
+            <div>
+              <div class="small fw-bold">Squad Lead: {{ team.created_by.display_name }}</div>
+              <small class="text-muted">Direct point of contact</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}My Teams & Invitations — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">My Squads & Invitations</h2>
+      <p class="text-muted small mb-0">Manage teams you lead or participate in as a specialist.</p>
+    </div>
+    <a href="{% url 'teams:create' %}" class="btn btn-adv-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i> Form New Squad
+    </a>
+  </div>
+
+  <!-- Pending Invitations -->
+  {% if invitations %}
+    <div class="card card-adv p-4 mb-4 border-warning bg-warning bg-opacity-10" style="border-radius: 20px;">
+      <h5 class="fw-bold text-dark mb-3"><i class="bi bi-envelope-exclamation-fill text-warning me-2"></i> Pending Squad Invitations</h5>
+      <div class="d-flex flex-column gap-3">
+        {% for inv in invitations %}
+          <div class="p-3 bg-white rounded-3 border d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+            <div>
+              <h6 class="fw-bold mb-1">Invitation to join <strong>{{ inv.team.name }}</strong> as <em>{{ inv.role_in_team }}</em></h6>
+              <p class="text-muted small mb-0">{{ inv.message|default:"You have been invited by the squad lead to collaborate." }}</p>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="{% url 'teams:respond_invitation' invite_id=inv.id action='accept' %}" class="btn btn-success btn-sm fw-bold">Accept & Join</a>
+              <a href="{% url 'teams:respond_invitation' invite_id=inv.id action='decline' %}" class="btn btn-outline-danger btn-sm">Decline</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Teams I Lead -->
+  <h5 class="fw-bold mb-3">Teams You Lead</h5>
+  <div class="row g-4 mb-5">
+    {% for team in owned_teams %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card card-adv h-100 p-4 border-0 shadow-sm">
+          <h5 class="fw-bold mb-1">{{ team.name }}</h5>
+          <p class="text-muted small mb-3">{{ team.tagline }}</p>
+          <div class="small text-muted mb-3"><i class="bi bi-people me-1"></i> {{ team.members.count }} Members • ${{ team.hourly_rate }}/hr</div>
+          <a href="{% url 'teams:detail' slug=team.slug %}" class="btn btn-adv-outline btn-sm w-100 mt-auto">Manage Squad</a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-muted small">You have not created any squads yet.</div>
+    {% endfor %}
+  </div>
+
+  <!-- Member Teams -->
+  <h5 class="fw-bold mb-3">Squads You Participate In</h5>
+  <div class="row g-4">
+    {% for team in member_teams %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card card-adv h-100 p-4 border-0 shadow-sm">
+          <h5 class="fw-bold mb-1">{{ team.name }}</h5>
+          <p class="text-muted small mb-3">{{ team.tagline }}</p>
+          <a href="{% url 'teams:detail' slug=team.slug %}" class="btn btn-adv-outline btn-sm w-100 mt-auto">View Squad</a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-muted small">You are not a member of other squads yet.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

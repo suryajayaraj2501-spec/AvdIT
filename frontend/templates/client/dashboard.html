@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Client Dashboard — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Client Management Hub</h2>
+      <p class="text-muted small mb-0">Overview of active builds, hired talent, proposals, and escrow transactions.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'ai_assistant:team_builder_page' %}" class="btn btn-outline-primary btn-sm fw-bold">
+        <i class="bi bi-magic me-1"></i> AI Squad Builder
+      </a>
+      <a href="{% url 'projects:create' %}" class="btn btn-adv-primary btn-sm fw-bold">
+        <i class="bi bi-plus-circle me-1"></i> Post New Project
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary-subtle text-primary">
+          <i class="bi bi-cash-stack"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Spend</small>
+          <h4 class="fw-bold mb-0 text-primary">${{ total_spent }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-success-subtle text-success">
+          <i class="bi bi-kanban"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Active Projects</small>
+          <h4 class="fw-bold mb-0">{{ active_projects_count }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-warning-subtle text-warning">
+          <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Open Postings</small>
+          <h4 class="fw-bold mb-0">{{ open_projects_count }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-info-subtle text-info">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Hires</small>
+          <h4 class="fw-bold mb-0">{{ profile.hire_count }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts & Active Contracts -->
+  <div class="row g-4 mb-4">
+    <!-- Project Breakdown Chart -->
+    <div class="col-lg-5">
+      <div class="card card-adv p-4 border-0 shadow-sm h-100" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">Project Status Distribution</h5>
+        <div style="position: relative; height: 240px;">
+          <canvas id="clientProjectsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Contracts & Workspaces -->
+    <div class="col-lg-7">
+      <div class="card card-adv p-4 border-0 shadow-sm h-100" style="border-radius: 20px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Active Project Contracts</h5>
+          <a href="{% url 'clients:my_projects' %}" class="small text-decoration-none fw-bold">View All Projects</a>
+        </div>
+
+        <div class="d-flex flex-column gap-2">
+          {% for c in contracts %}
+            <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="fw-bold mb-1">{{ c.project.title }}</h6>
+                <small class="text-muted">Hired: {{ c.freelancer.user.display_name|default:c.team.name }} • ${{ c.total_amount }}</small>
+              </div>
+              <a href="{% url 'projects:workspace' pk=c.project.id %}" class="btn btn-sm btn-adv-primary">
+                Open Workspace
+              </a>
+            </div>
+          {% empty %}
+            <div class="text-center py-4 text-muted small">No active contracts. Post a project or hire a squad!</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Received Proposals -->
+  <div class="row g-4">
+    <div class="col-12">
+      <div class="card card-adv p-4 border-0 shadow-sm" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">Recent Proposals Awaiting Your Review</h5>
+        <div class="row g-3">
+          {% for p in proposals %}
+            <div class="col-md-6 col-lg-4">
+              <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <div>
+                    <h6 class="fw-bold mb-0">{{ p.applicant_name }}</h6>
+                    <small class="text-muted text-truncate d-block" style="max-width: 180px;">For: {{ p.project.title }}</small>
+                  </div>
+                  <span class="badge bg-primary text-white">${{ p.bid_amount }}</span>
+                </div>
+                <p class="small text-muted mb-3 flex-grow-1">{{ p.cover_letter|truncatewords:15 }}</p>
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                  <small class="text-muted">{{ p.estimated_duration_days }} days delivery</small>
+                  <a href="{% url 'projects:detail' pk=p.project.id %}" class="btn btn-sm btn-adv-outline py-1">Review</a>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-muted small">No pending proposals awaiting review.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const ctx = document.getElementById('clientProjectsChart');
+  if (!ctx) return;
+
+  try {
+    const res = await fetch('/clients/api/dashboard-stats/');
+    const data = await res.json();
+
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: data.status_labels || ['Open', 'In Progress', 'Completed'],
+        datasets: [{
+          data: data.status_data || [3, 2, 1],
+          backgroundColor: ['#6366f1', '#10b981', '#06b6d4', '#f59e0b']
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' }
+        }
+      }
+    });
+  } catch (e) {
+    console.error(e);
+  }
+});
+</script>
+{% endblock %}

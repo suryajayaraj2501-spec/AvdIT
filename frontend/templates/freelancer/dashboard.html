@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Developer & Squad Dashboard — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <span class="badge badge-adv badge-adv-primary text-uppercase">{{ profile.title|default:"Developer" }}</span>
+        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">{{ profile.get_availability_display }}</span>
+      </div>
+      <h2 class="fw-bold mb-0">Developer & Squad Hub: {{ user.display_name }}</h2>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a href="{% url 'freelancers:upload_demo' %}" class="btn btn-adv-primary btn-sm fw-bold">
+        <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Demo Project
+      </a>
+      <a href="{% url 'teams:create' %}" class="btn btn-outline-primary btn-sm fw-bold">
+        <i class="bi bi-people-fill me-1"></i> Form Squad
+      </a>
+      <a href="{% url 'freelancers:my_profile' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-pencil-square me-1"></i> Edit Profile
+      </a>
+    </div>
+  </div>
+
+  <!-- Metric Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary-subtle text-primary">
+          <i class="bi bi-wallet2"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Earnings</small>
+          <h4 class="fw-bold mb-0 text-primary">${{ profile.total_earnings }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-success-subtle text-success">
+          <i class="bi bi-briefcase-fill"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Active Contracts</small>
+          <h4 class="fw-bold mb-0">{{ active_contracts.count }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-warning-subtle text-warning">
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Rating Score</small>
+          <h4 class="fw-bold mb-0">{{ profile.rating }}★</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-info-subtle text-info">
+          <i class="bi bi-window-fullscreen"></i>
+        </div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Demo Showcases</small>
+          <h4 class="fw-bold mb-0">{{ my_demos.count }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Demo Projects & Squad Formation Highlight Section -->
+  <div class="row g-4 mb-4">
+    <!-- My Demo Projects Showcase -->
+    <div class="col-lg-7">
+      <div class="card card-adv p-4 border-0 shadow-sm h-100" style="border-radius: 20px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="bi bi-window-stack text-primary me-2"></i> My Demo Projects Showcase</h5>
+            <small class="text-muted">Live projects & prototypes clients can inspect and hire you for</small>
+          </div>
+          <a href="{% url 'freelancers:upload_demo' %}" class="btn btn-sm btn-adv-outline fw-bold">+ Upload Demo</a>
+        </div>
+
+        <div class="row g-3">
+          {% for demo in my_demos %}
+            <div class="col-md-6">
+              <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="badge bg-primary text-white" style="font-size: 0.65rem;">{{ demo.category }}</span>
+                  {% if demo.team %}
+                    <span class="badge bg-purple text-white" style="font-size: 0.65rem;">Squad: {{ demo.team.name }}</span>
+                  {% endif %}
+                </div>
+                <h6 class="fw-bold mb-1">{{ demo.title }}</h6>
+                <p class="small text-muted mb-2 flex-grow-1">{{ demo.description|truncatewords:10 }}</p>
+                <div class="d-flex justify-content-between align-items-center pt-2 border-top mt-auto">
+                  <a href="{% url 'freelancers:demo_detail' pk=demo.id %}" class="small text-primary fw-bold text-decoration-none">View Live Page</a>
+                  <a href="{% url 'freelancers:delete_demo' pk=demo.id %}" onclick="return confirm('Delete this demo?')" class="text-danger small"><i class="bi bi-trash"></i></a>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-center py-4 text-muted small">
+              <i class="bi bi-cloud-upload fs-2 d-block mb-1 text-muted opacity-50"></i>
+              You haven't uploaded any demo projects yet. Upload a prototype to showcase your code to prospective clients!
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- My Squads & Teams -->
+    <div class="col-lg-5">
+      <div class="card card-adv p-4 border-0 shadow-sm h-100" style="border-radius: 20px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="fw-bold mb-0"><i class="bi bi-people-fill text-primary me-2"></i> My Team Squads</h5>
+            <small class="text-muted">Collaborate and bid together</small>
+          </div>
+          <a href="{% url 'teams:create' %}" class="btn btn-sm btn-adv-outline fw-bold">+ New Squad</a>
+        </div>
+
+        <div class="d-flex flex-column gap-2">
+          {% for t in my_teams %}
+            <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="fw-bold mb-1">{{ t.name }}</h6>
+                <small class="text-muted">{{ t.members.count }} Specialists • ${{ t.hourly_rate }}/hr squad rate</small>
+              </div>
+              <a href="{% url 'teams:detail' slug=t.slug %}" class="btn btn-sm btn-adv-outline">Manage</a>
+            </div>
+          {% empty %}
+            <div class="text-center py-4 text-muted small">
+              You are not a member of any squad yet.<br>
+              <a href="{% url 'teams:create' %}" class="btn btn-sm btn-adv-primary mt-2">Form a Team Squad</a>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Earnings Growth Chart & Active Contracts -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-7">
+      <div class="card card-adv p-4 border-0 shadow-sm h-100" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">Monthly Earnings Velocity</h5>
+        <div style="position: relative; height: 240px;">
+          <canvas id="freelancerEarningsChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card card-adv p-4 border-0 shadow-sm h-100" style="border-radius: 20px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Active Project Contracts</h5>
+          <span class="badge bg-light text-muted">{{ active_contracts.count }} Running</span>
+        </div>
+
+        <div class="d-flex flex-column gap-2">
+          {% for c in active_contracts %}
+            <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+              <div>
+                <h6 class="fw-bold mb-1 text-truncate" style="max-width: 220px;">{{ c.project.title }}</h6>
+                <small class="text-muted">Client: {{ c.client.user.display_name }} • ${{ c.total_amount }}</small>
+              </div>
+              <a href="{% url 'projects:workspace' pk=c.project.id %}" class="btn btn-sm btn-adv-outline">Workspace</a>
+            </div>
+          {% empty %}
+            <div class="text-center py-4 text-muted small">No active contracts right now. Browse projects to submit proposals!</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const ctx = document.getElementById('freelancerEarningsChart');
+  if (!ctx) return;
+
+  try {
+    const res = await fetch('/freelancers/api/earnings/');
+    const data = await res.json();
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data.chart_labels || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+        datasets: [{
+          label: 'Monthly Earnings ($)',
+          data: data.chart_data || [450, 780, 1200, 950, 1600, 2100, 1850, 2400],
+          borderColor: '#4f46e5',
+          backgroundColor: 'rgba(79, 70, 229, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#4f46e5'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  } catch (e) {
+    console.error("Error loading chart data:", e);
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Service Listing — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <h3 class="fw-bold mb-1">Create a Packaged Service Listing</h3>
+        <p class="text-muted small mb-4">Set up 3 distinct packages (Basic, Standard, Premium) to monetize your skills on AdvIT.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- General Service Info -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Service Title</label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. I will build a full-stack AI web application with Django and React" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Category</label>
+              <select name="category" class="form-select">
+                {% for val, label in categories %}
+                  <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Cover Showcase Image</label>
+              <input type="file" name="cover_image" class="form-control">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Full Service Description</label>
+            <textarea name="description" class="form-control" rows="4" placeholder="Explain your process, technical stack, and deliverable quality..." required></textarea>
+          </div>
+
+          <h5 class="fw-bold mb-3 pt-3 border-top">Package Tiers Setup</h5>
+
+          <!-- 3 Package Columns -->
+          <div class="row g-3 mb-4">
+            <!-- Basic Tier -->
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3 border h-100">
+                <h6 class="fw-bold text-primary mb-2">1. Basic Package</h6>
+                <div class="mb-2">
+                  <input type="text" name="basic_name" class="form-control form-control-sm" placeholder="Name (e.g. Starter MVP)" value="Starter Package" required>
+                </div>
+                <div class="mb-2">
+                  <textarea name="basic_desc" class="form-control form-control-sm" rows="2" placeholder="Deliverables summary...">Essential foundation & setup</textarea>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small fw-bold">Price ($)</label>
+                  <input type="number" name="basic_price" class="form-control form-control-sm" value="50" required>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label class="form-label small">Days</label>
+                    <input type="number" name="basic_days" class="form-control form-control-sm" value="3">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Revs</label>
+                    <input type="number" name="basic_revs" class="form-control form-control-sm" value="1">
+                  </div>
+                </div>
+                <div>
+                  <input type="text" name="basic_features" class="form-control form-control-sm" placeholder="Features (comma separated)" value="Responsive UI, Source Code">
+                </div>
+              </div>
+            </div>
+
+            <!-- Standard Tier -->
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3 border h-100">
+                <h6 class="fw-bold text-success mb-2">2. Standard Package</h6>
+                <div class="mb-2">
+                  <input type="text" name="std_name" class="form-control form-control-sm" placeholder="Name (e.g. Full Feature App)" value="Standard Pro" required>
+                </div>
+                <div class="mb-2">
+                  <textarea name="std_desc" class="form-control form-control-sm" rows="2" placeholder="Deliverables summary...">Complete feature build with APIs</textarea>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small fw-bold">Price ($)</label>
+                  <input type="number" name="std_price" class="form-control form-control-sm" value="150" required>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label class="form-label small">Days</label>
+                    <input type="number" name="std_days" class="form-control form-control-sm" value="7">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Revs</label>
+                    <input type="number" name="std_revs" class="form-control form-control-sm" value="3">
+                  </div>
+                </div>
+                <div>
+                  <input type="text" name="std_features" class="form-control form-control-sm" placeholder="Features (comma separated)" value="Auth, REST APIs, Database, 3 Revisions">
+                </div>
+              </div>
+            </div>
+
+            <!-- Premium Tier -->
+            <div class="col-md-4">
+              <div class="p-3 bg-light rounded-3 border h-100">
+                <h6 class="fw-bold text-purple mb-2">3. Premium Package</h6>
+                <div class="mb-2">
+                  <input type="text" name="prem_name" class="form-control form-control-sm" placeholder="Name (e.g. Enterprise AI Suite)" value="Enterprise Pro" required>
+                </div>
+                <div class="mb-2">
+                  <textarea name="prem_desc" class="form-control form-control-sm" rows="2" placeholder="Deliverables summary...">Production deployment & full AI workflows</textarea>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small fw-bold">Price ($)</label>
+                  <input type="number" name="prem_price" class="form-control form-control-sm" value="350" required>
+                </div>
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
+                    <label class="form-label small">Days</label>
+                    <input type="number" name="prem_days" class="form-control form-control-sm" value="14">
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label small">Revs</label>
+                    <input type="number" name="prem_revs" class="form-control form-control-sm" value="5">
+                  </div>
+                </div>
+                <div>
+                  <input type="text" name="prem_features" class="form-control form-control-sm" placeholder="Features (comma separated)" value="Full AI Integration, Docker, CI/CD, 5 Revisions">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              Publish Service Package Listing
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

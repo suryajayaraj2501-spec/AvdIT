@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Demo Project Slides — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge badge-adv badge-adv-primary text-uppercase">PROJECT PRESENTATION</span>
+          <span class="badge bg-light text-muted border">SLIDE DECK SHOWCASE</span>
+        </div>
+        <h3 class="fw-bold mb-1">Upload Demo Project Presentation Slides</h3>
+        <p class="text-muted small mb-4">Upload your project overview, architecture diagrams, UI screenshots, and code walkthrough as interactive slides that clients can browse through.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Basic Project Info -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Demo Project Title</label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Enterprise AI SaaS Diagnostic & Vector Search Platform" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Category</label>
+              <select name="category" class="form-select">
+                <option value="AI & Machine Learning">AI & Machine Learning</option>
+                <option value="Web Application" selected>Web Application</option>
+                <option value="Mobile App">Mobile App</option>
+                <option value="UI/UX Design">UI/UX Design</option>
+                <option value="Cloud & DevOps">Cloud & DevOps</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Developed By</label>
+              <select name="team_id" class="form-select">
+                <option value="">Solo Developer Build</option>
+                {% for t in user_teams %}
+                  <option value="{{ t.id }}">Team Squad: {{ t.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Project Overview & Deliverables</label>
+            <textarea name="description" class="form-control" rows="4" placeholder="Explain the problem solved, system architecture, database structure, and key features..." required></textarea>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Live Demo / Website URL</label>
+              <input type="url" name="project_url" class="form-control" placeholder="https://demo.example.com">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">GitHub Repository URL</label>
+              <input type="url" name="github_url" class="form-control" placeholder="https://github.com/username/project">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Technologies / Tags (comma-separated)</label>
+            <input type="text" name="tags" class="form-control" placeholder="e.g. Django, Google Gemini API, React, Tailwind, Docker, PostgreSQL">
+          </div>
+
+          <!-- Multi-Slide Presentation Upload Section -->
+          <div class="p-4 bg-light rounded-4 border mb-4">
+            <h5 class="fw-bold mb-1"><i class="bi bi-images text-primary me-2"></i> Upload Presentation Slides (Multiple Images)</h5>
+            <p class="text-muted small mb-3">Select multiple slide screenshots in sequence (Slide 1: Overview, Slide 2: Architecture, Slide 3: UI Dashboard, Slide 4: Code/Results). Clients will see an interactive slider!</p>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold small text-muted">Select Slide Images (JPG, PNG, WebP)</label>
+              <input type="file" name="slides" id="slideFileInput" class="form-control form-control-lg" multiple accept="image/*" onchange="previewSlides(this)">
+            </div>
+
+            <!-- Slide Previews Container -->
+            <div id="slidesPreviewContainer" class="row g-3 mt-2 d-none">
+              <!-- Dynamically populated via JS -->
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              <i class="bi bi-cloud-arrow-up-fill me-2"></i> Publish Demo Project Slides
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function previewSlides(input) {
+  const container = document.getElementById('slidesPreviewContainer');
+  container.innerHTML = '';
+  
+  if (input.files && input.files.length > 0) {
+    container.classList.remove('d-none');
+    
+    Array.from(input.files).forEach((file, index) => {
+      const col = document.createElement('div');
+      col.className = 'col-md-4 col-6';
+      
+      const card = document.createElement('div');
+      card.className = 'p-2 bg-white rounded-3 border text-center shadow-sm h-100';
+      
+      const img = document.createElement('img');
+      img.className = 'img-fluid rounded mb-2';
+      img.style.height = '120px';
+      img.style.objectFit = 'cover';
+      img.style.width = '100%';
+      img.src = URL.createObjectURL(file);
+      
+      const title = document.createElement('div');
+      title.className = 'small fw-bold text-dark';
+      title.innerText = `Slide ${index + 1}: ${file.name.substring(0, 15)}...`;
+      
+      const captionInput = document.createElement('input');
+      captionInput.type = 'text';
+      captionInput.name = `caption_${index}`;
+      captionInput.className = 'form-control form-control-sm mt-2';
+      captionInput.placeholder = `Slide ${index + 1} Caption (e.g. Architecture)`;
+      
+      card.appendChild(img);
+      card.appendChild(title);
+      card.appendChild(captionInput);
+      col.appendChild(card);
+      container.appendChild(col);
+    });
+  } else {
+    container.classList.add('d-none');
+  }
+}
+</script>
+{% endblock %}

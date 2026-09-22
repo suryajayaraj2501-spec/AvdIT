@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Explore Projects — AdvIT Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Header & Filters Bar -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Browse Available Projects</h2>
+      <p class="text-muted small mb-0">Apply as a solo freelancer or propose with your multidisciplinary squad.</p>
+    </div>
+    {% if user.is_client %}
+      <a href="{% url 'projects:create' %}" class="btn btn-adv-primary">
+        <i class="bi bi-plus-circle me-1"></i> Post a Project
+      </a>
+    {% endif %}
+  </div>
+
+  <div class="row g-4">
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3">
+      <div class="card card-adv p-4 border-0 shadow-sm" style="border-radius: 18px;">
+        <h6 class="fw-bold mb-3"><i class="bi bi-funnel me-1"></i> Filter Projects</h6>
+        
+        <form method="GET" action="{% url 'projects:list' %}">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">Search Keyword</label>
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="Title, keywords..." value="{{ query }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">Category</label>
+            <select name="category" class="form-select form-select-sm">
+              <option value="">All Categories</option>
+              {% for cat_val, cat_label in categories %}
+                <option value="{{ cat_val }}" {% if selected_category == cat_val %}selected{% endif %}>{{ cat_label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">Project Type</label>
+            <select name="type" class="form-select form-select-sm">
+              <option value="">Any Type</option>
+              <option value="solo" {% if selected_type == 'solo' %}selected{% endif %}>Solo Freelancer</option>
+              <option value="team" {% if selected_type == 'team' %}selected{% endif %}>Team Squad</option>
+              <option value="either" {% if selected_type == 'either' %}selected{% endif %}>Solo or Team</option>
+            </select>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-adv-primary btn-sm fw-bold">Apply Filters</button>
+            <a href="{% url 'projects:list' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Projects List -->
+    <div class="col-lg-9">
+      {% for project in projects %}
+        <div class="card card-adv p-4 mb-3 border-0 shadow-sm">
+          <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+            <div>
+              <span class="badge badge-adv badge-adv-primary text-uppercase me-2" style="font-size: 0.7rem;">{{ project.category }}</span>
+              {% if project.project_type == 'team' %}
+                <span class="badge badge-adv badge-adv-purple" style="font-size: 0.7rem;"><i class="bi bi-people-fill me-1"></i> Team Only</span>
+              {% elif project.project_type == 'solo' %}
+                <span class="badge badge-adv badge-adv-info" style="font-size: 0.7rem;"><i class="bi bi-person-fill me-1"></i> Solo</span>
+              {% else %}
+                <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">Solo or Team</span>
+              {% endif %}
+              <h5 class="fw-bold mt-2 mb-1">
+                <a href="{% url 'projects:detail' pk=project.id %}" class="text-dark text-decoration-none hover-primary">
+                  {{ project.title }}
+                </a>
+              </h5>
+              <small class="text-muted">Posted {{ project.created_at|timesince }} ago by <strong>{{ project.client.user.display_name }}</strong></small>
+            </div>
+            <div class="text-end">
+              <div class="display-6 fw-bold text-primary" style="font-size: 1.5rem;">${{ project.budget }}</div>
+              <small class="text-muted">Fixed Budget</small>
+            </div>
+          </div>
+
+          <p class="text-muted small mb-3">
+            {{ project.description|truncatewords:30 }}
+          </p>
+
+          <div class="d-flex flex-wrap gap-1 mb-3">
+            {% for ps in project.project_skills.all %}
+              <span class="badge bg-light text-dark border small">{{ ps.skill.name }}</span>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <span class="small text-muted"><i class="bi bi-file-earmark-text me-1"></i> {{ project.proposal_count }} proposals received</span>
+            <a href="{% url 'projects:detail' pk=project.id %}" class="btn btn-adv-outline btn-sm fw-bold">View & Apply</a>
+          </div>
+        </div>
+      {% empty %}
+        <div class="card card-adv p-5 text-center border-0">
+          <div class="avatar-placeholder mx-auto mb-3" style="width: 54px; height: 54px;"><i class="bi bi-inbox fs-4"></i></div>
+          <h5 class="fw-bold">No Projects Found</h5>
+          <p class="text-muted small">Try modifying your search filters or check back shortly.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

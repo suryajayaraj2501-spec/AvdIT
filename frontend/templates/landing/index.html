@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AdvIT — AI-Powered Team-Based Freelancing Marketplace{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-advit position-relative">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-white bg-opacity-10 border border-white border-opacity-20 text-light small mb-3">
+          <span class="pulse-badge"></span> Next-Gen AI Squad Formation
+        </div>
+        <h1 class="hero-title mb-4">
+          Assemble <span class="text-gradient">AI-Powered Teams</span> for Any Project in Seconds
+        </h1>
+        <p class="fs-5 text-light opacity-80 mb-4 pe-lg-4 lh-base">
+          Describe your vision, and AdvIT's Gemini AI identifies required skillsets and automatically forms complete, multidisciplinary freelance squads — from UI/UX to Full-Stack and AI Engineering.
+        </p>
+
+        <!-- Search Bar -->
+        <form action="{% url 'projects:list' %}" method="GET" class="card-glass p-2 rounded-4 shadow-lg mb-4">
+          <div class="input-group">
+            <span class="input-group-text bg-transparent border-0 text-muted ps-3">
+              <i class="bi bi-search fs-5"></i>
+            </span>
+            <input type="text" name="q" class="form-control bg-transparent border-0 fs-6 shadow-none" placeholder="Search projects, skills (e.g. Django, Next.js, Gemini API, Figma)...">
+            <button type="submit" class="btn btn-adv-primary px-4 py-2">
+              Explore Work
+            </button>
+          </div>
+        </form>
+
+        <div class="d-flex flex-wrap gap-3 align-items-center text-light small">
+          <span class="opacity-75">Popular AI Skills:</span>
+          {% for skill in popular_skills|slice:":5" %}
+            <a href="{% url 'projects:list' %}?skill={{ skill.name }}" class="badge bg-white bg-opacity-10 text-white text-decoration-none border border-white border-opacity-20 px-3 py-2 rounded-pill hover-scale">
+              {{ skill.name }}
+            </a>
+          {% empty %}
+            <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill">Python</span>
+            <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill">Django</span>
+            <span class="badge bg-white bg-opacity-10 text-white px-3 py-2 rounded-pill">Gemini AI</span>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Hero AI Interactive Card -->
+      <div class="col-lg-5">
+        <div class="ai-glow-box">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="d-flex align-items-center gap-2">
+              <div class="avatar-placeholder" style="width: 32px; height: 32px;"><i class="bi bi-stars"></i></div>
+              <span class="fw-bold text-white small">Live AI Team Architect</span>
+            </div>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 0.7rem;">Gemini Pro</span>
+          </div>
+
+          <div class="p-3 rounded-3 bg-black bg-opacity-40 border border-white border-opacity-10 mb-3">
+            <div class="text-secondary small fw-bold mb-1">PROJECT INPUT</div>
+            <p class="small text-light mb-0 font-monospace">"Build a SaaS AI customer support platform with real-time vector search and dashboard..."</p>
+          </div>
+
+          <div class="small fw-bold text-light mb-2"><i class="bi bi-diagram-3-fill text-info me-1"></i> RECOMMENDED SQUAD (4 SEATS)</div>
+          <div class="d-flex flex-column gap-2 mb-3">
+            <div class="p-2 rounded bg-white bg-opacity-10 d-flex justify-content-between align-items-center small">
+              <div class="text-white"><i class="bi bi-palette text-warning me-2"></i>UI/UX Product Designer</div>
+              <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">100% Match</span>
+            </div>
+            <div class="p-2 rounded bg-white bg-opacity-10 d-flex justify-content-between align-items-center small">
+              <div class="text-white"><i class="bi bi-code-slash text-info me-2"></i>Full-Stack Developer</div>
+              <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">98% Match</span>
+            </div>
+            <div class="p-2 rounded bg-white bg-opacity-10 d-flex justify-content-between align-items-center small">
+              <div class="text-white"><i class="bi bi-cpu text-primary me-2"></i>AI / LLM Engineer</div>
+              <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">96% Match</span>
+            </div>
+            <div class="p-2 rounded bg-white bg-opacity-10 d-flex justify-content-between align-items-center small">
+              <div class="text-white"><i class="bi bi-shield-check text-danger me-2"></i>QA & DevOps Specialist</div>
+              <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-25">94% Match</span>
+            </div>
+          </div>
+
+          <a href="{% url 'ai_assistant:team_builder_page' %}" class="btn btn-adv-primary w-100 py-2 fw-bold text-center">
+            <i class="bi bi-magic me-2"></i> Launch AI Team Builder Free
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Value Proposition Stats -->
+<section class="py-5 bg-white border-bottom">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-md-3 col-6">
+        <div class="display-6 fw-bold text-primary mb-1">98.4%</div>
+        <div class="text-muted small">Squad Match Accuracy</div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="display-6 fw-bold text-primary mb-1">3.2x</div>
+        <div class="text-muted small">Faster Delivery with Teams</div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="display-6 fw-bold text-primary mb-1">100%</div>
+        <div class="text-muted small">Escrow Protected Payouts</div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="display-6 fw-bold text-primary mb-1">24/7</div>
+        <div class="text-muted small">AI Co-Pilot Assistance</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How AdvIT Works -->
+<section class="py-5 my-3">
+  <div class="container">
+    <div class="text-center max-w-700 mx-auto mb-5">
+      <span class="badge badge-adv badge-adv-primary mb-2">WORKFLOW</span>
+      <h2 class="fw-bold">How AdvIT Powers Modern Freelancing</h2>
+      <p class="text-muted">From scope to squad assembly and milestone payout, AdvIT handles the entire lifecycle.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card card-adv h-100 p-4 border-0">
+          <div class="stat-icon bg-primary-subtle text-primary mb-3">
+            <i class="bi bi-chat-left-quote fs-3"></i>
+          </div>
+          <h5 class="fw-bold mb-2">1. Describe Your Vision</h5>
+          <p class="text-muted small mb-0">Post a natural-language description of your project or software idea. No technical jargon required.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-adv h-100 p-4 border-0">
+          <div class="stat-icon bg-info-subtle text-info mb-3">
+            <i class="bi bi-people-fill fs-3"></i>
+          </div>
+          <h5 class="fw-bold mb-2">2. AI Squad Assembly</h5>
+          <p class="text-muted small mb-0">Gemini AI breaks down requirements into discrete roles and ranks existing verified talent and squads.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-adv h-100 p-4 border-0">
+          <div class="stat-icon bg-success-subtle text-success mb-3">
+            <i class="bi bi-shield-check fs-3"></i>
+          </div>
+          <h5 class="fw-bold mb-2">3. Milestone Escrow Release</h5>
+          <p class="text-muted small mb-0">Fund milestones with Razorpay into escrow. Review deliverables in the project workspace before releasing payment.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured AI Teams -->
+<section class="py-5 bg-light border-top border-bottom">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <span class="badge badge-adv badge-adv-purple mb-2">PRE-ASSEMBLED SQUADS</span>
+        <h2 class="fw-bold mb-1">Featured Multi-Talent Teams</h2>
+        <p class="text-muted small mb-0">Hire cross-functional squads ready to tackle complex end-to-end deliverables.</p>
+      </div>
+      <a href="{% url 'teams:list' %}" class="btn btn-outline-primary btn-sm fw-bold">View All Teams <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div class="row g-4">
+      {% for team in featured_teams %}
+        <div class="col-lg-3 col-md-6">
+          <div class="card card-adv h-100 p-3">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              {% if team.avatar %}
+                <img src="{{ team.avatar.url }}" alt="{{ team.name }}" class="avatar-img avatar-lg">
+              {% else %}
+                <div class="avatar-placeholder" style="width: 54px; height: 54px; font-size: 1.3rem;">
+                  {{ team.name|make_list|first|upper }}
+                </div>
+              {% endif %}
+              <div>
+                <h6 class="fw-bold mb-1 text-truncate" style="max-width: 150px;">{{ team.name }}</h6>
+                <div class="small text-warning">
+                  <i class="bi bi-star-fill"></i> {{ team.rating }} <span class="text-muted">({{ team.reviews_count }})</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-muted small mb-3 text-truncate-2" style="min-height: 40px;">
+              {{ team.tagline|default:team.description|truncatewords:12 }}
+            </p>
+
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              {% for ts in team.team_skills.all|slice:":3" %}
+                <span class="badge bg-light text-dark border small" style="font-size: 0.7rem;">{{ ts.skill.name }}</span>
+              {% endfor %}
+            </div>
+
+            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted">Squad Rate</small>
+                <div class="fw-bold text-primary">${{ team.hourly_rate }}/hr</div>
+              </div>
+              <a href="{% url 'teams:detail' slug=team.slug %}" class="btn btn-sm btn-adv-outline">View Team</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-4">
+          <p class="text-muted">Teams are being assembled. Be the first to create one!</p>
+          <a href="{% url 'teams:create' %}" class="btn btn-adv-primary btn-sm">Create a Team</a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Popular Services Marketplace (Fiverr Style) -->
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <div>
+        <span class="badge badge-adv badge-adv-primary mb-2">SERVICE CATALOG</span>
+        <h2 class="fw-bold mb-1">Trending Packaged Services</h2>
+        <p class="text-muted small mb-0">Browse fixed-price packaged gigs with guaranteed turnaround times.</p>
+      </div>
+      <a href="{% url 'services:list' %}" class="btn btn-outline-primary btn-sm fw-bold">Explore All Services <i class="bi bi-arrow-right"></i></a>
+    </div>
+
+    <div class="row g-4">
+      {% for service in featured_services %}
+        <div class="col-lg-4 col-md-6">
+          <div class="card card-adv h-100">
+            {% if service.cover_image %}
+              <img src="{{ service.cover_image.url }}" class="card-img-top" alt="{{ service.title }}" style="height: 180px; object-fit: cover;">
+            {% else %}
+              <div class="bg-gradient-dark text-white p-4 d-flex align-items-center justify-content-center" style="height: 180px; background: var(--adv-gradient-dark);">
+                <i class="bi bi-code-square display-4 text-primary opacity-50"></i>
+              </div>
+            {% endif %}
+
+            <div class="card-body p-3 d-flex flex-column">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                {% if service.freelancer.user.avatar %}
+                  <img src="{{ service.freelancer.user.avatar.url }}" class="avatar-img" style="width: 28px; height: 28px;">
+                {% else %}
+                  <div class="avatar-placeholder" style="width: 28px; height: 28px; font-size: 0.75rem;">
+                    {{ service.freelancer.user.username|make_list|first|upper }}
+                  </div>
+                {% endif %}
+                <span class="small fw-semibold text-muted">{{ service.freelancer.user.display_name }}</span>
+                <span class="badge bg-light text-dark ms-auto border">{{ service.category }}</span>
+              </div>
+
+              <h6 class="fw-bold mb-2">
+                <a href="{% url 'services:detail' pk=service.id %}" class="text-dark text-decoration-none">
+                  {{ service.title|truncatewords:10 }}
+                </a>
+              </h6>
+
+              <div class="small text-warning mb-3">
+                <i class="bi bi-star-fill"></i> {{ service.rating }} <span class="text-muted">({{ service.orders_count }} orders)</span>
+              </div>
+
+              <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                <small class="text-muted">STARTING AT</small>
+                <div class="fw-bold fs-5 text-primary">${{ service.starting_price }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-4">
+          <p class="text-muted">No services listed yet.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action Banner -->
+<section class="container py-5">
+  <div class="card-dark p-5 text-center text-white position-relative overflow-hidden" style="border-radius: 28px; background: var(--adv-gradient-dark);">
+    <div class="max-w-700 mx-auto position-relative z-1">
+      <h2 class="display-6 fw-bold mb-3">Ready to Build with Next-Gen AI Squads?</h2>
+      <p class="lead text-light opacity-80 mb-4">
+        Join thousands of clients and premier freelancers leveraging AdvIT for collaborative, AI-assisted project success.
+      </p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <a href="{% url 'accounts:register' %}?role=client" class="btn btn-adv-primary btn-lg px-4 fw-bold">
+          <i class="bi bi-briefcase-fill me-2"></i> Hire a Squad
+        </a>
+        <a href="{% url 'accounts:register' %}?role=freelancer" class="btn btn-adv-outline btn-lg px-4 fw-bold">
+          <i class="bi bi-person-workspace me-2"></i> Join as Freelancer
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

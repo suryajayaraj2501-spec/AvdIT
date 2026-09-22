@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Find Freelancers & Specialists — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Explore Top Freelancers</h2>
+      <p class="text-muted small mb-0">Browse verified developers, designers, and AI specialists.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- Sidebar Filters -->
+    <div class="col-lg-3">
+      <div class="card card-adv p-4 border-0 shadow-sm" style="border-radius: 18px;">
+        <h6 class="fw-bold mb-3"><i class="bi bi-funnel me-1"></i> Filter Talent</h6>
+        <form method="GET" action="{% url 'freelancers:list' %}">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">Keyword</label>
+            <input type="text" name="q" class="form-control form-control-sm" placeholder="Name, title, bio..." value="{{ query }}">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">Specialization</label>
+            <select name="skill" class="form-select form-select-sm">
+              <option value="">All Skills</option>
+              {% for s in skills %}
+                <option value="{{ s.name }}" {% if selected_skill == s.name %}selected{% endif %}>{{ s.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-muted">Availability</label>
+            <select name="availability" class="form-select form-select-sm">
+              <option value="">Any</option>
+              <option value="available" {% if selected_avail == 'available' %}selected{% endif %}>Available Now</option>
+              <option value="busy" {% if selected_avail == 'busy' %}selected{% endif %}>Partially Available</option>
+            </select>
+          </div>
+
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-adv-primary btn-sm fw-bold">Filter</button>
+            <a href="{% url 'freelancers:list' %}" class="btn btn-outline-secondary btn-sm">Reset</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Freelancer Cards -->
+    <div class="col-lg-9">
+      <div class="row g-4">
+        {% for fl in freelancers %}
+          <div class="col-md-6 col-lg-4">
+            <div class="card card-adv h-100 p-4 border-0 shadow-sm text-center">
+              {% if fl.user.avatar %}
+                <img src="{{ fl.user.avatar.url }}" alt="{{ fl.user.display_name }}" class="avatar-img avatar-lg mx-auto mb-3">
+              {% else %}
+                <div class="avatar-placeholder avatar-lg mx-auto mb-3 fs-3">
+                  {{ fl.user.username|make_list|first|upper }}
+                </div>
+              {% endif %}
+
+              <h5 class="fw-bold mb-1">
+                <a href="{% url 'freelancers:detail' pk=fl.id %}" class="text-dark text-decoration-none hover-primary">
+                  {{ fl.user.display_name }}
+                </a>
+              </h5>
+              <div class="text-muted small mb-2 text-truncate">{{ fl.title }}</div>
+
+              <div class="small text-warning mb-3">
+                <i class="bi bi-star-fill"></i> {{ fl.rating }} <span class="text-muted">({{ fl.total_reviews_count }} reviews)</span>
+              </div>
+
+              <div class="d-flex flex-wrap justify-content-center gap-1 mb-3">
+                {% for fs in fl.freelancer_skills.all|slice:":3" %}
+                  <span class="badge bg-light text-dark border small" style="font-size: 0.7rem;">{{ fs.skill.name }}</span>
+                {% endfor %}
+              </div>
+
+              <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                <span class="fw-bold text-primary fs-5">${{ fl.hourly_rate }}<span class="small text-muted fs-6">/hr</span></span>
+                <a href="{% url 'freelancers:detail' pk=fl.id %}" class="btn btn-adv-outline btn-sm fw-bold">View Profile</a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center py-5 text-muted">
+            <h5>No freelancers found.</h5>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Company Profile Settings — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <h3 class="fw-bold mb-1">Company & Client Profile</h3>
+        <p class="text-muted small mb-4">Update your organization details and industry focus.</p>
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Company / Brand Name</label>
+            <input type="text" name="company_name" class="form-control" value="{{ profile.company_name }}" placeholder="e.g. Acme AI Innovations" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Industry</label>
+              <input type="text" name="industry" class="form-control" value="{{ profile.industry }}" placeholder="e.g. Fintech, SaaS, Healthcare">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company Size</label>
+              <select name="company_size" class="form-select">
+                <option value="1" {% if profile.company_size == '1' %}selected{% endif %}>Individual (1 person)</option>
+                <option value="2-10" {% if profile.company_size == '2-10' %}selected{% endif %}>Small (2-10)</option>
+                <option value="11-50" {% if profile.company_size == '11-50' %}selected{% endif %}>Medium (11-50)</option>
+                <option value="51-200" {% if profile.company_size == '51-200' %}selected{% endif %}>Mid-Large (51-200)</option>
+                <option value="200+" {% if profile.company_size == '200+' %}selected{% endif %}>Enterprise (200+)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Company Website</label>
+              <input type="url" name="company_website" class="form-control" value="{{ profile.company_website }}" placeholder="https://acme.ai">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Location</label>
+              <input type="text" name="location" class="form-control" value="{{ profile.location }}" placeholder="e.g. Austin, TX or Remote">
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">About the Organization</label>
+            <textarea name="about_company" class="form-control" rows="4" placeholder="Brief summary of your mission and upcoming digital product initiatives...">{{ profile.about_company }}</textarea>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              Save Company Profile
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

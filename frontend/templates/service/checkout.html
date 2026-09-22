@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout: {{ package.name }} — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <h3 class="fw-bold mb-1">Order Checkout</h3>
+        <p class="text-muted small mb-4">Provide project instructions and proceed to secure escrow funding.</p>
+
+        <!-- Order Summary Card -->
+        <div class="p-3 bg-light rounded-3 border mb-4 d-flex justify-content-between align-items-center">
+          <div>
+            <span class="badge badge-adv badge-adv-primary text-uppercase">{{ package.get_tier_display }} TIER</span>
+            <h5 class="fw-bold mb-1 mt-1">{{ package.service.title }}</h5>
+            <small class="text-muted">Package: <strong>{{ package.name }}</strong> ({{ package.delivery_days }} Days Delivery)</small>
+          </div>
+          <div class="text-end">
+            <div class="display-6 fw-bold text-primary" style="font-size: 1.8rem;">${{ package.price }}</div>
+            <small class="text-muted">Total Due</small>
+          </div>
+        </div>
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Provide Instructions & Requirements for the Freelancer</label>
+            <textarea name="requirements" class="form-control" rows="5" placeholder="Share links, brand assets, API keys, or specific feature descriptions..." required></textarea>
+          </div>
+
+          <div class="alert alert-info py-2 small mb-4">
+            <i class="bi bi-shield-lock-fill me-1"></i> Your payment of <strong>${{ package.price }}</strong> is protected by the AdvIT Escrow Vault until deliverables are delivered.
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              Confirm & Place Order (${{ package.price }})
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

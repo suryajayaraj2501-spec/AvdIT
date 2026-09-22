@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Hire High-Velocity Squads — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Hire Ready-to-Deploy Squads</h2>
+      <p class="text-muted small mb-0">Skip the hassle of hiring individual freelancers one by one. Hire cohesive teams.</p>
+    </div>
+    <a href="{% url 'ai_assistant:team_builder_page' %}" class="btn btn-adv-primary btn-sm">
+      <i class="bi bi-magic me-1"></i> AI Squad Matcher
+    </a>
+  </div>
+
+  <div class="row g-4">
+    {% for team in teams %}
+      <div class="col-lg-4 col-md-6">
+        <div class="card card-adv h-100 p-4 border-0 shadow-sm">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            {% if team.avatar %}
+              <img src="{{ team.avatar.url }}" alt="{{ team.name }}" class="avatar-img avatar-lg">
+            {% else %}
+              <div class="avatar-placeholder avatar-lg fs-3">{{ team.name|make_list|first|upper }}</div>
+            {% endif %}
+            <div>
+              <h5 class="fw-bold mb-1">{{ team.name }}</h5>
+              <div class="small text-warning"><i class="bi bi-star-fill"></i> {{ team.rating }} ({{ team.reviews_count }})</div>
+            </div>
+          </div>
+          <p class="text-muted small mb-3 flex-grow-1">{{ team.tagline }}</p>
+          <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+            <span class="fw-bold text-primary">${{ team.hourly_rate }}/hr</span>
+            <a href="{% url 'teams:detail' slug=team.slug %}" class="btn btn-adv-primary btn-sm">Hire Squad</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-center py-5 text-muted">No teams available right now.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

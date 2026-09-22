@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Team Builder — Assemble Multidisciplinary Squads | AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Page Header -->
+  <div class="text-center max-w-700 mx-auto mb-5">
+    <div class="badge badge-adv badge-adv-primary mb-2">⭐ HEADLINE AI FEATURE</div>
+    <h1 class="display-6 fw-bold">Intelligent AI Team Builder</h1>
+    <p class="text-muted">Describe your product or project goal in plain English. AdvIT's Gemini AI analyzes the scope, creates the ideal team structure, and instantly finds the best matched talent and squads.</p>
+  </div>
+
+  <div class="row g-4">
+    <!-- Left Input Panel -->
+    <div class="col-lg-5">
+      <div class="card card-adv p-4 border-0 shadow-sm sticky-top" style="top: 90px; border-radius: 20px;">
+        <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+          <i class="bi bi-sliders text-primary"></i> Project Parameters
+        </h5>
+
+        <form id="aiTeamBuilderForm">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Project Title</label>
+            <input type="text" id="projectTitle" class="form-control" placeholder="e.g. AI-Powered Healthcare Dashboard" value="Enterprise AI Analytics SaaS">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Category</label>
+            <select id="projectCategory" class="form-select">
+              <option value="Full-Stack Product">Full-Stack Product</option>
+              <option value="AI & Machine Learning">AI & Machine Learning</option>
+              <option value="Web Development">Web Development</option>
+              <option value="Mobile Apps">Mobile Apps</option>
+              <option value="UI/UX & Design">UI/UX & Design</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Estimated Budget ($ USD)</label>
+            <input type="number" id="projectBudget" class="form-control" value="2500" min="100">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Describe What You Want to Build</label>
+            <textarea id="projectDescription" class="form-control" rows="5" placeholder="Include target users, core features, desired tech stack, and any AI/data requirements...">We need a scalable SaaS platform with an interactive dashboard, Gemini AI analytics integration, automated PDF report generation, secure user authentication with multi-tenancy, and responsive mobile-first UI.</textarea>
+          </div>
+
+          <button type="submit" id="btnBuildTeam" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6">
+            <i class="bi bi-magic me-2"></i> Assemble AI Team
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Right Results Panel -->
+    <div class="col-lg-7">
+      <!-- Loading State -->
+      <div id="aiLoadingState" class="card card-adv p-5 text-center d-none" style="border-radius: 20px;">
+        <div class="spinner-border text-primary mx-auto mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
+        <h5 class="fw-bold mb-2">Analyzing Project Requirements...</h5>
+        <p class="text-muted small">Gemini AI is extracting required skillsets, mapping role dependencies, and querying the AdvIT talent registry.</p>
+      </div>
+
+      <!-- Results Container -->
+      <div id="aiResultsContainer">
+        <!-- Initial Prompt Banner -->
+        <div id="aiInitialBanner" class="card card-dark p-4 p-md-5 text-center text-white" style="border-radius: 20px; background: var(--adv-gradient-dark);">
+          <div class="avatar-placeholder mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem;">
+            <i class="bi bi-cpu-fill"></i>
+          </div>
+          <h4 class="fw-bold mb-2">Ready to Assemble Your Squad</h4>
+          <p class="text-light opacity-75 small mb-4 max-w-500 mx-auto">
+            Click "Assemble AI Team" to generate an architectural breakdown and discover recommended solo talent & pre-formed teams.
+          </p>
+          <button type="button" onclick="document.getElementById('aiTeamBuilderForm').dispatchEvent(new Event('submit'))" class="btn btn-adv-primary px-4 py-2">
+            Try Demo Assembly
+          </button>
+        </div>
+
+        <!-- Dynamic Output Content -->
+        <div id="aiOutputContent" class="d-none">
+          <!-- Summary Card -->
+          <div class="card card-adv p-4 mb-4 border-0" style="border-radius: 20px; background: linear-gradient(135deg, #eef2ff 0%, #e0f2fe 100%);">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-primary text-white"><i class="bi bi-check-circle-fill me-1"></i> AI Scope Analysis</span>
+              <span class="small fw-bold text-muted" id="squadMeta">4 Seats • 3 Weeks</span>
+            </div>
+            <h5 class="fw-bold text-dark mb-2" id="resSummary">Executive Scope</h5>
+            <div class="d-flex flex-wrap gap-1 mt-2" id="resSkills"></div>
+          </div>
+
+          <!-- Recommended Roles Accordion / Grid -->
+          <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-diagram-3 text-primary"></i> Recommended Squad Composition
+          </h5>
+          <div class="row g-3 mb-4" id="rolesGrid"></div>
+
+          <!-- Matched Verified Talent -->
+          <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-person-check text-success"></i> Top Matched Freelancers
+          </h5>
+          <div class="row g-3 mb-4" id="freelancersGrid"></div>
+
+          <!-- Matched Pre-formed Teams -->
+          <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+            <i class="bi bi-people text-info"></i> Pre-Assembled Teams Ready to Deploy
+          </h5>
+          <div class="row g-3" id="teamsGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('aiTeamBuilderForm');
+  const loading = document.getElementById('aiLoadingState');
+  const initialBanner = document.getElementById('aiInitialBanner');
+  const outputContent = document.getElementById('aiOutputContent');
+  const btn = document.getElementById('btnBuildTeam');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('projectTitle').value.trim();
+    const description = document.getElementById('projectDescription').value.trim();
+    const budget = document.getElementById('projectBudget').value;
+    const category = document.getElementById('projectCategory').value;
+
+    if (!description) return alert("Please enter a project description.");
+
+    initialBanner.classList.add('d-none');
+    outputContent.classList.add('d-none');
+    loading.classList.remove('d-none');
+    btn.disabled = true;
+
+    try {
+      const res = await fetch('/ai/api/team-builder/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken') || ''
+        },
+        body: JSON.stringify({
+          title: title,
+          description: description,
+          budget: budget,
+          category: category
+        })
+      });
+
+      const data = await res.json();
+      loading.classList.add('d-none');
+      btn.disabled = false;
+
+      if (res.ok && data.analysis) {
+        renderResults(data);
+        outputContent.classList.remove('d-none');
+      } else {
+        alert(data.error || "Failed to generate AI team recommendation.");
+      }
+    } catch (err) {
+      console.error(err);
+      loading.classList.add('d-none');
+      btn.disabled = false;
+      alert("Error contacting AI Team Builder endpoint.");
+    }
+  });
+
+  function renderResults(data) {
+    const a = data.analysis;
+    document.getElementById('resSummary').textContent = a.project_summary || "Tailored Multidisciplinary Squad Scope";
+    document.getElementById('squadMeta').textContent = `${a.recommended_squad_size || a.roles.length} Seats • ~${a.estimated_weeks || 3} Weeks`;
+
+    // Skills
+    const skillsContainer = document.getElementById('resSkills');
+    skillsContainer.innerHTML = '';
+    (a.required_skills || []).forEach(s => {
+      skillsContainer.innerHTML += `<span class="badge bg-white text-dark border shadow-sm px-2 py-1">${s}</span>`;
+    });
+
+    // Roles
+    const rolesContainer = document.getElementById('rolesGrid');
+    rolesContainer.innerHTML = '';
+    (a.roles || []).forEach((r, idx) => {
+      rolesContainer.innerHTML += `
+        <div class="col-md-6">
+          <div class="card card-adv h-100 p-3 border">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge badge-adv badge-adv-primary" style="font-size: 0.7rem;">Seat #${idx + 1}</span>
+              <span class="badge bg-light text-muted border">${r.recommended_experience || 'Expert'}</span>
+            </div>
+            <h6 class="fw-bold mb-1">${r.role}</h6>
+            <p class="text-muted small mb-2">${r.responsibilities || ''}</p>
+            <div class="small fw-semibold text-primary mt-auto">Allocation: ${r.estimated_allocation || '100%'}</div>
+          </div>
+        </div>
+      `;
+    });
+
+    // Freelancers
+    const flContainer = document.getElementById('freelancersGrid');
+    flContainer.innerHTML = '';
+    if (data.matching_freelancers && data.matching_freelancers.length > 0) {
+      data.matching_freelancers.forEach(f => {
+        flContainer.innerHTML += `
+          <div class="col-md-6">
+            <div class="card card-adv p-3 border">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="avatar-placeholder" style="width: 38px; height: 38px; font-size: 0.9rem;">${f.name.charAt(0)}</div>
+                <div class="text-truncate">
+                  <div class="fw-bold small text-truncate">${f.name}</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">${f.title}</div>
+                </div>
+                <span class="badge bg-success bg-opacity-20 text-success ms-auto">${f.match_score}% Match</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                <span class="fw-bold small text-primary">$${f.hourly_rate}/hr</span>
+                <a href="/freelancers/${f.id}/" class="btn btn-sm btn-adv-outline py-1 px-2" style="font-size: 0.75rem;">View Profile</a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      flContainer.innerHTML = '<div class="col-12 text-muted small">No direct individual matches found.</div>';
+    }
+
+    // Teams
+    const teamsContainer = document.getElementById('teamsGrid');
+    teamsContainer.innerHTML = '';
+    if (data.matching_teams && data.matching_teams.length > 0) {
+      data.matching_teams.forEach(t => {
+        teamsContainer.innerHTML += `
+          <div class="col-md-6">
+            <div class="card card-adv p-3 border">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="avatar-placeholder" style="width: 38px; height: 38px; font-size: 0.9rem;">${t.name.charAt(0)}</div>
+                <div class="text-truncate">
+                  <div class="fw-bold small text-truncate">${t.name}</div>
+                  <div class="text-muted" style="font-size: 0.75rem;">${t.member_count} Squad Members</div>
+                </div>
+                <span class="badge bg-info bg-opacity-20 text-info ms-auto">${t.match_score}% Match</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                <span class="fw-bold small text-primary">$${t.hourly_rate}/hr (Squad)</span>
+                <a href="/teams/${t.slug}/" class="btn btn-sm btn-adv-primary py-1 px-2" style="font-size: 0.75rem;">Hire Squad</a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    } else {
+      teamsContainer.innerHTML = '<div class="col-12 text-muted small">No teams available yet.</div>';
+    }
+  }
+});
+</script>
+{% endblock %}

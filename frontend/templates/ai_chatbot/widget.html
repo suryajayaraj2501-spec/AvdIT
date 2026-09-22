@@ -1,0 +1,42 @@
+<!-- AdvIT Global AI Assistant Floating Widget -->
+<div id="aiChatbotContainer">
+  <!-- Trigger Button -->
+  <button id="aiChatWidgetBtn" class="ai-widget-button" title="Ask AdvIT AI Assistant">
+    <i class="bi bi-stars"></i>
+  </button>
+
+  <!-- Slide-Up Chat Panel -->
+  <div id="aiChatWidgetPanel" class="ai-widget-panel">
+    <div class="ai-widget-header">
+      <div class="d-flex align-items-center gap-2">
+        <div class="badge bg-primary p-2 rounded-circle"><i class="bi bi-robot text-white"></i></div>
+        <div>
+          <h6 class="mb-0 fw-bold">AdvIT AI Co-Pilot</h6>
+          <small class="text-light opacity-75" style="font-size: 0.75rem;"><span class="pulse-badge me-1"></span> Gemini 2.0 Enabled</small>
+        </div>
+      </div>
+      <button id="aiChatCloseBtn" class="btn btn-sm btn-link text-white p-0 text-decoration-none">
+        <i class="bi bi-x-lg fs-6"></i>
+      </button>
+    </div>
+
+    <div id="aiChatMessages" class="ai-widget-body">
+      <div class="ai-msg ai-msg-assistant">
+        👋 Hi! I'm your <strong>AdvIT AI Assistant</strong>.<br>
+        Ask me anything about finding freelancers, forming multidisciplinary squads, or scoping your project budget!
+      </div>
+    </div>
+
+    <div class="ai-widget-footer">
+      <div class="input-group">
+        <input type="text" id="aiChatInput" class="form-control" placeholder="Ask AI or describe a project..." autocomplete="off">
+        <button id="aiChatSendBtn" class="btn btn-primary px-3">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+      <div class="text-center mt-1">
+        <small class="text-muted" style="font-size: 0.7rem;">Powered by Google Gemini & AdvIT Matching Engine</small>
+      </div>
+    </div>
+  </div>
+</div>

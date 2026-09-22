@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}My Projects — AdvIT Client{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">My Posted Projects</h2>
+      <p class="text-muted small mb-0">Manage all your open listings, active contracts, and completed builds.</p>
+    </div>
+    <a href="{% url 'projects:create' %}" class="btn btn-adv-primary btn-sm">
+      <i class="bi bi-plus-circle me-1"></i> Post New Project
+    </a>
+  </div>
+
+  <div class="card card-adv border-0 shadow-sm overflow-hidden" style="border-radius: 20px;">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th class="ps-4">Project Title</th>
+            <th>Category</th>
+            <th>Budget</th>
+            <th>Proposals</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th class="pe-4 text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in projects %}
+            <tr>
+              <td class="ps-4">
+                <a href="{% url 'projects:detail' pk=p.id %}" class="fw-bold text-dark text-decoration-none hover-primary">
+                  {{ p.title }}
+                </a>
+              </td>
+              <td><span class="badge bg-light text-dark border">{{ p.category }}</span></td>
+              <td class="fw-bold text-primary">${{ p.budget }}</td>
+              <td><span class="badge bg-secondary-subtle text-secondary-emphasis">{{ p.proposal_count }}</span></td>
+              <td>
+                <span class="badge {% if p.status == 'open' %}bg-primary{% elif p.status == 'in_progress' %}bg-success{% else %}bg-secondary{% endif %}" style="font-size: 0.75rem;">
+                  {{ p.get_status_display }}
+                </span>
+              </td>
+              <td class="small text-muted">{{ p.created_at|date:"M d, Y" }}</td>
+              <td class="pe-4 text-end">
+                <a href="{% url 'projects:detail' pk=p.id %}" class="btn btn-sm btn-outline-primary me-1">View</a>
+                {% if p.status == 'in_progress' or p.status == 'completed' %}
+                  <a href="{% url 'projects:workspace' pk=p.id %}" class="btn btn-sm btn-adv-primary">Workspace</a>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-5 text-muted">
+                You haven't posted any projects yet.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

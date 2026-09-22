@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Post a New Project — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- AI Quick Scoper Callout -->
+      <div class="card p-4 mb-4 border-0 shadow-sm" style="border-radius: 20px; background: var(--adv-gradient-primary); color: white;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h5 class="fw-bold mb-1"><i class="bi bi-magic me-2"></i> Want AI to scope your project?</h5>
+            <small class="opacity-90">Let Gemini AI recommend the exact squad structure, skills, and budget breakdown.</small>
+          </div>
+          <a href="{% url 'ai_assistant:team_builder_page' %}" class="btn btn-light text-primary fw-bold btn-sm px-3">
+            Open AI Builder
+          </a>
+        </div>
+      </div>
+
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <h3 class="fw-bold mb-2">Post a New Project</h3>
+        <p class="text-muted small mb-4">Connect with top solo talent or hire a pre-formed high-velocity team.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Project Title</label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Build an AI-Powered Customer Support Portal" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Category</label>
+              <select name="category" class="form-select">
+                {% for val, label in categories %}
+                  <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Target Applicant</label>
+              <select name="project_type" class="form-select">
+                {% for val, label in types %}
+                  <option value="{{ val }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Detailed Project Requirements</label>
+            <textarea name="description" class="form-control" rows="6" placeholder="Describe the goal, deliverables, scope, and technical preferences..." required></textarea>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Estimated Budget ($ USD)</label>
+              <input type="number" name="budget" class="form-control" value="1500" min="50" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Target Deadline</label>
+              <input type="date" name="deadline" class="form-control">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Required Skills (Select relevant)</label>
+            <select name="skills" class="form-select" multiple style="height: 120px;">
+              {% for skill in skills %}
+                <option value="{{ skill.id }}">{{ skill.name }} ({{ skill.category }})</option>
+              {% endfor %}
+            </select>
+            <small class="text-muted">Hold Ctrl/Cmd to select multiple skills.</small>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Project Brief / Specification Document</label>
+            <input type="file" name="attachment" class="form-control">
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              <i class="bi bi-check-circle-fill me-2"></i> Publish Project & Get Proposals
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

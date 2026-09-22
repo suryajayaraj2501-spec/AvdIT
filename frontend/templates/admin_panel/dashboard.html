@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Platform Staff Administration — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-lg-5 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <div class="badge badge-adv badge-adv-primary mb-1">STAFF ACCESS ONLY</div>
+      <h2 class="fw-bold mb-0">AdvIT Platform Oversight & Analytics</h2>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'admin_panel:users' %}" class="btn btn-outline-secondary btn-sm">Manage Users</a>
+      <a href="{% url 'admin_panel:projects' %}" class="btn btn-outline-secondary btn-sm">Oversight Projects</a>
+      <a href="/admin/" target="_blank" class="btn btn-dark btn-sm">Django Admin</a>
+    </div>
+  </div>
+
+  <!-- Key Performance Metrics -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary-subtle text-primary"><i class="bi bi-currency-dollar"></i></div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Platform Volume</small>
+          <h4 class="fw-bold mb-0 text-primary">${{ total_volume }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-success-subtle text-success"><i class="bi bi-shield-lock-fill"></i></div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Active in Escrow</small>
+          <h4 class="fw-bold mb-0 text-success">${{ in_escrow }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-warning-subtle text-warning"><i class="bi bi-people-fill"></i></div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Total Platform Users</small>
+          <h4 class="fw-bold mb-0">{{ total_users }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-info-subtle text-info"><i class="bi bi-diagram-3-fill"></i></div>
+        <div>
+          <small class="text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Formed Squads</small>
+          <h4 class="fw-bold mb-0">{{ total_teams }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Charts -->
+  <div class="row g-4 mb-4">
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 border-0 shadow-sm" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">Gross Transaction Volume (Escrow & Payouts)</h5>
+        <div style="position: relative; height: 260px;">
+          <canvas id="adminVolumeChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card card-adv p-4 border-0 shadow-sm" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">User Base Breakdown</h5>
+        <div style="position: relative; height: 260px;">
+          <canvas id="adminUserChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent System Events -->
+  <div class="row g-4">
+    <!-- Recent Users -->
+    <div class="col-lg-6">
+      <div class="card card-adv p-4 border-0 shadow-sm" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">Newly Registered Users</h5>
+        <div class="d-flex flex-column gap-2">
+          {% for u in recent_users %}
+            <div class="p-2 px-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar-placeholder" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                  {{ u.username|make_list|first|upper }}
+                </div>
+                <div>
+                  <strong class="small">{{ u.display_name }}</strong>
+                  <small class="text-muted">(@{{ u.username }})</small>
+                </div>
+              </div>
+              <span class="badge badge-adv badge-adv-primary text-uppercase" style="font-size: 0.65rem;">{{ u.get_role_display }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Escrow Payments -->
+    <div class="col-lg-6">
+      <div class="card card-adv p-4 border-0 shadow-sm" style="border-radius: 20px;">
+        <h5 class="fw-bold mb-3">Recent Escrow Payments</h5>
+        <div class="d-flex flex-column gap-2">
+          {% for p in recent_payments %}
+            <div class="p-2 px-3 bg-light rounded-3 d-flex justify-content-between align-items-center">
+              <div>
+                <strong class="small text-primary">${{ p.amount }}</strong>
+                <small class="text-muted">by {{ p.payer.username }}</small>
+              </div>
+              <span class="badge bg-success bg-opacity-25 text-success small">{{ p.get_status_display }}</span>
+            </div>
+          {% empty %}
+            <p class="text-muted small">No payment records yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const volCtx = document.getElementById('adminVolumeChart');
+  const userCtx = document.getElementById('adminUserChart');
+
+  try {
+    const res = await fetch('/admin-panel/api/stats/');
+    const data = await res.json();
+
+    if (volCtx) {
+      new Chart(volCtx, {
+        type: 'bar',
+        data: {
+          labels: data.months || ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'],
+          datasets: [{
+            label: 'Transaction Volume ($)',
+            data: data.volume_data || [12000, 18000, 24000, 31000, 42000, 56000, 68000, 84000],
+            backgroundColor: '#4f46e5',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    if (userCtx) {
+      new Chart(userCtx, {
+        type: 'doughnut',
+        data: {
+          labels: data.user_distribution_labels || ['Clients', 'Freelancers', 'Staff'],
+          datasets: [{
+            data: data.user_distribution_data || [12, 28, 2],
+            backgroundColor: ['#6366f1', '#06b6d4', '#1e1b4b']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+});
+</script>
+{% endblock %}

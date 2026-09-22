@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Log In to AdvIT — Choose Your Role{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-9">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-lg" style="border-radius: 28px;">
+        <div class="text-center mb-4">
+          <span class="badge badge-adv badge-adv-primary mb-2">WELCOME TO ADVIT</span>
+          <h2 class="fw-bold">Sign In to Your Workspace</h2>
+          <p class="text-muted small">Select your role to view role-specific workflows and test credentials</p>
+        </div>
+
+        <!-- Role Switcher Selector Tabs -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <div class="card p-3 border-2 role-select-card cursor-pointer border-primary bg-primary bg-opacity-10 h-100" id="cardRoleDeveloper" onclick="switchLoginRole('developer')">
+              <div class="d-flex align-items-center gap-3">
+                <div class="avatar-placeholder bg-primary text-white" style="width: 46px; height: 46px; font-size: 1.3rem;">
+                  <i class="bi bi-person-workspace"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1 text-primary">Developer / Freelancer</h6>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Build teams, upload demo projects & bid</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card p-3 border-2 role-select-card cursor-pointer border-light bg-light h-100" id="cardRoleClient" onclick="switchLoginRole('client')">
+              <div class="d-flex align-items-center gap-3">
+                <div class="avatar-placeholder bg-secondary text-white" style="width: 46px; height: 46px; font-size: 1.3rem;">
+                  <i class="bi bi-building"></i>
+                </div>
+                <div>
+                  <h6 class="fw-bold mb-1 text-dark">Client / Company</h6>
+                  <small class="text-muted d-block" style="font-size: 0.75rem;">Browse demo projects & hire squads</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 align-items-center">
+          <!-- Left: Login Form -->
+          <div class="col-md-6 border-end pe-md-4">
+            <form method="POST" novalidate>
+              {% csrf_token %}
+
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 small mb-3">
+                  {{ form.non_field_errors.0 }}
+                </div>
+              {% endif %}
+
+              <div class="mb-3">
+                <label class="form-label fw-semibold small">Username or Email</label>
+                <input type="text" name="username" id="loginUsername" class="form-control" placeholder="Enter username" value="sarah_chen" required>
+              </div>
+
+              <div class="mb-4">
+                <label class="form-label fw-semibold small">Password</label>
+                <input type="password" name="password" id="loginPassword" class="form-control" placeholder="Enter password" value="pass1234" required>
+              </div>
+
+              <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-adv-primary py-2 fw-bold fs-6">
+                  Sign In to AdvIT
+                </button>
+              </div>
+
+              <div class="text-center my-3 text-muted small">
+                OR
+              </div>
+              
+              {% load socialaccount %}
+              <div class="d-grid mb-3">
+                <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark py-2 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2">
+                  <i class="bi bi-google text-danger"></i> Continue with Google
+                </a>
+              </div>
+
+              <div class="text-center text-muted small">
+                Don't have an account? <a href="{% url 'accounts:register' %}" class="fw-bold">Sign up free</a>
+              </div>
+            </form>
+          </div>
+
+          <!-- Right: Role Details & Quick Demo Access -->
+          <div class="col-md-6 ps-md-4">
+            <!-- Developer Role Details Preview -->
+            <div id="roleInfoDeveloper">
+              <div class="p-3 bg-light rounded-3 border mb-3">
+                <h6 class="fw-bold text-primary mb-2"><i class="bi bi-gear-wide-connected me-1"></i> Developer Workflow:</h6>
+                <ul class="list-unstyled small mb-0 d-flex flex-column gap-2 text-muted">
+                  <li><i class="bi bi-people-fill text-primary me-2"></i><strong>Form Squads:</strong> Create team name & invite specialists (UI/UX, Dev, AI, QA).</li>
+                  <li><i class="bi bi-cloud-arrow-up-fill text-success me-2"></i><strong>Upload Demos:</strong> Publish interactive demo projects and GitHub repositories.</li>
+                  <li><i class="bi bi-shield-check text-info me-2"></i><strong>Escrow Earnings:</strong> Secure milestone payouts released upon approval.</li>
+                </ul>
+              </div>
+
+              <div class="p-3 rounded-3 border bg-white small">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <strong class="text-dark">Quick Test Account (Developer Lead)</strong>
+                  <button type="button" class="btn btn-sm btn-outline-primary py-0 px-2" onclick="setCredentials('sarah_chen', 'pass1234')">Fill</button>
+                </div>
+                <div class="text-muted" style="font-size: 0.75rem;">Username: <code>sarah_chen</code> | Password: <code>pass1234</code></div>
+              </div>
+            </div>
+
+            <!-- Client Role Details Preview -->
+            <div id="roleInfoClient" class="d-none">
+              <div class="p-3 bg-light rounded-3 border mb-3">
+                <h6 class="fw-bold text-success mb-2"><i class="bi bi-briefcase-fill me-1"></i> Client Workflow:</h6>
+                <ul class="list-unstyled small mb-0 d-flex flex-column gap-2 text-muted">
+                  <li><i class="bi bi-window-fullscreen text-primary me-2"></i><strong>Explore Demos:</strong> Browse developers' & squads' demo showcase projects.</li>
+                  <li><i class="bi bi-chat-quote-fill text-success me-2"></i><strong>Direct Discussion:</strong> 1-Click discuss your custom build with the creators.</li>
+                  <li><i class="bi bi-magic text-warning me-2"></i><strong>AI Team Builder:</strong> Auto-scope required roles and hire pre-assembled squads.</li>
+                </ul>
+              </div>
+
+              <div class="p-3 rounded-3 border bg-white small">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <strong class="text-dark">Quick Test Account (Client Company)</strong>
+                  <button type="button" class="btn btn-sm btn-outline-success py-0 px-2" onclick="setCredentials('tech_client', 'pass1234')">Fill</button>
+                </div>
+                <div class="text-muted" style="font-size: 0.75rem;">Username: <code>tech_client</code> | Password: <code>pass1234</code></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function switchLoginRole(role) {
+  const cardDev = document.getElementById('cardRoleDeveloper');
+  const cardCli = document.getElementById('cardRoleClient');
+  const infoDev = document.getElementById('roleInfoDeveloper');
+  const infoCli = document.getElementById('roleInfoClient');
+
+  if (role === 'developer') {
+    cardDev.className = "card p-3 border-2 role-select-card cursor-pointer border-primary bg-primary bg-opacity-10 h-100";
+    cardCli.className = "card p-3 border-2 role-select-card cursor-pointer border-light bg-light h-100";
+    infoDev.classList.remove('d-none');
+    infoCli.classList.add('d-none');
+    setCredentials('sarah_chen', 'pass1234');
+  } else {
+    cardCli.className = "card p-3 border-2 role-select-card cursor-pointer border-success bg-success bg-opacity-10 h-100";
+    cardDev.className = "card p-3 border-2 role-select-card cursor-pointer border-light bg-light h-100";
+    infoCli.classList.remove('d-none');
+    infoDev.classList.add('d-none');
+    setCredentials('tech_client', 'pass1234');
+  }
+}
+
+function setCredentials(username, password) {
+  document.getElementById('loginUsername').value = username;
+  document.getElementById('loginPassword').value = password;
+}
+</script>
+{% endblock %}

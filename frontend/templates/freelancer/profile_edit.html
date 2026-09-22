@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Freelancer Profile & Skills — AdvIT{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- AI Profile Improver Box -->
+      <div class="card p-4 mb-4 border-0 shadow-sm" style="border-radius: 20px; background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); color: white;">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+          <div>
+            <h5 class="fw-bold mb-1"><i class="bi bi-stars text-warning me-2"></i> AI Profile Optimizer</h5>
+            <small class="opacity-80">Let Gemini AI audit your profile copy and suggest high-converting bio & skill tags.</small>
+          </div>
+          <button type="button" id="btnAiAuditProfile" class="btn btn-warning fw-bold btn-sm px-3">
+            <i class="bi bi-magic me-1"></i> Run AI Profile Audit
+          </button>
+        </div>
+        <div id="aiAuditFeedback" class="mt-3 p-3 bg-black bg-opacity-30 rounded-3 small d-none"></div>
+      </div>
+
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm" style="border-radius: 24px;">
+        <h3 class="fw-bold mb-1">Freelancer Profile & Portfolio</h3>
+        <p class="text-muted small mb-4">Update your rates, primary skills, and showcase your best projects.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Professional Headline / Title</label>
+            <input type="text" name="title" id="profTitle" class="form-control" value="{{ profile.title }}" placeholder="e.g. Senior Full-Stack AI Engineer" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Hourly Rate ($/hr)</label>
+              <input type="number" name="hourly_rate" id="profRate" class="form-control" value="{{ profile.hourly_rate }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Availability</label>
+              <select name="availability" class="form-select">
+                <option value="available" {% if profile.availability == 'available' %}selected{% endif %}>Available for Work</option>
+                <option value="busy" {% if profile.availability == 'busy' %}selected{% endif %}>Partially Available</option>
+                <option value="not_available" {% if profile.availability == 'not_available' %}selected{% endif %}>Not Available</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">Experience Level</label>
+              <select name="experience_level" class="form-select">
+                <option value="entry" {% if profile.experience_level == 'entry' %}selected{% endif %}>Entry Level</option>
+                <option value="intermediate" {% if profile.experience_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                <option value="expert" {% if profile.experience_level == 'expert' %}selected{% endif %}>Expert</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Location</label>
+            <input type="text" name="location" class="form-control" value="{{ profile.location }}" placeholder="e.g. San Francisco, CA or Remote">
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Professional Bio & Value Proposition</label>
+            <textarea name="bio" id="profBio" class="form-control" rows="5" placeholder="Highlight your expertise, achievements, and squad collaboration experience...">{{ profile.bio }}</textarea>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Skills Matrix (Select all that apply)</label>
+            <select name="skills" class="form-select" multiple style="height: 140px;">
+              {% for s in all_skills %}
+                <option value="{{ s.id }}" {% if s in profile.skills.all %}selected{% endif %}>
+                  {{ s.name }} ({{ s.category }})
+                </option>
+              {% endfor %}
+            </select>
+            <small class="text-muted">Hold Ctrl/Cmd to select multiple skills.</small>
+          </div>
+
+          <h5 class="fw-bold mb-3 pt-3 border-top">+ Add New Portfolio Showcase</h5>
+          <div class="p-3 bg-light rounded-3 border mb-4">
+            <div class="mb-2">
+              <input type="text" name="port_title" class="form-control form-control-sm" placeholder="Project Title (e.g. Healthcare Analytics Dashboard)">
+            </div>
+            <div class="mb-2">
+              <textarea name="port_desc" class="form-control form-control-sm" rows="2" placeholder="Brief project description & deliverables..."></textarea>
+            </div>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="url" name="port_url" class="form-control form-control-sm" placeholder="Live Demo URL (https://...)">
+              </div>
+              <div class="col-6">
+                <input type="file" name="port_image" class="form-control form-control-sm">
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              Save Freelancer Profile
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('btnAiAuditProfile').addEventListener('click', async () => {
+  const btn = document.getElementById('btnAiAuditProfile');
+  const fb = document.getElementById('aiAuditFeedback');
+  const title = document.getElementById('profTitle').value;
+  const bio = document.getElementById('profBio').value;
+  const rate = document.getElementById('profRate').value;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Auditing...';
+
+  try {
+    const res = await fetch('/api/ai/improve-profile/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken') || ''
+      },
+      body: JSON.stringify({ title, bio, hourly_rate: rate })
+    });
+
+    const data = await res.json();
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-magic me-1"></i> Run AI Profile Audit';
+
+    fb.classList.remove('d-none');
+    fb.innerHTML = `
+      <div class="fw-bold text-warning mb-1"><i class="bi bi-check2-circle me-1"></i> AI Suggestions:</div>
+      <div class="mb-2"><strong>Suggested Headline:</strong> ${data.improved_title || title}</div>
+      <div class="mb-2"><strong>Bio Feedback:</strong> ${data.bio_feedback || ''}</div>
+      <div class="mb-2"><strong>Recommended Skills:</strong> ${(data.recommended_skills_to_add || []).join(', ')}</div>
+      <div><strong>Pricing Strategy:</strong> ${data.pricing_tip || ''}</div>
+    `;
+  } catch (e) {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-magic me-1"></i> Run AI Profile Audit';
+    alert("Error running profile audit.");
+  }
+});
+</script>
+{% endblock %}

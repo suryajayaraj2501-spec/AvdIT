@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Join AdvIT — Create Your Account{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-lg" style="border-radius: 24px;">
+        <div class="text-center mb-4">
+          <div class="badge badge-adv badge-adv-primary mb-2">JOIN THE AI FREELANCE REVOLUTION</div>
+          <h2 class="fw-bold">Create your AdvIT Account</h2>
+          <p class="text-muted">Hire premier squads or monetize your skills in AI-driven projects.</p>
+        </div>
+
+        <form method="POST" novalidate>
+          {% csrf_token %}
+
+          <!-- Role Selector -->
+          <div class="mb-4">
+            <label class="form-label fw-bold small text-uppercase text-muted">Select Your Role</label>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="role" id="role_freelancer" value="freelancer" {% if form.role.value == 'freelancer' or not form.role.value %}checked{% endif %}>
+                <label class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center gap-1 rounded-4 h-100" for="role_freelancer">
+                  <i class="bi bi-person-workspace fs-3"></i>
+                  <span class="fw-bold">Freelancer</span>
+                  <small class="text-muted" style="font-size: 0.75rem;">Find work & form teams</small>
+                </label>
+              </div>
+              <div class="col-6">
+                <input type="radio" class="btn-check" name="role" id="role_client" value="client" {% if form.role.value == 'client' %}checked{% endif %}>
+                <label class="btn btn-outline-primary w-100 py-3 d-flex flex-column align-items-center gap-1 rounded-4 h-100" for="role_client">
+                  <i class="bi bi-building fs-3"></i>
+                  <span class="fw-bold">Client / Company</span>
+                  <small class="text-muted" style="font-size: 0.75rem;">Post jobs & hire squads</small>
+                </label>
+              </div>
+            </div>
+            {% if form.role.errors %}
+              <div class="text-danger small mt-1">{{ form.role.errors.0 }}</div>
+            {% endif %}
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">First Name</label>
+              {{ form.first_name }}
+              {% if form.first_name.errors %}<div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Last Name</label>
+              {{ form.last_name }}
+              {% if form.last_name.errors %}<div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Email Address</label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Password</label>
+              {{ form.password1 }}
+              {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Confirm Password</label>
+              {{ form.password2 }}
+              {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="d-grid mb-3">
+            <button type="submit" class="btn btn-adv-primary py-3 fw-bold fs-6">
+              <i class="bi bi-arrow-right-circle me-2"></i> Create AdvIT Account
+            </button>
+          </div>
+
+          <div class="text-center my-3 text-muted small">
+            OR
+          </div>
+          
+          {% load socialaccount %}
+          <div class="d-grid mb-4">
+            <a href="{% provider_login_url 'google' %}" class="btn btn-outline-dark py-3 fw-bold fs-6 d-flex align-items-center justify-content-center gap-2">
+              <i class="bi bi-google text-danger"></i> Sign up with Google
+            </a>
+          </div>
+
+          <div class="text-center text-muted small">
+            Already have an account? <a href="{% url 'accounts:login' %}" class="fw-bold">Log in here</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

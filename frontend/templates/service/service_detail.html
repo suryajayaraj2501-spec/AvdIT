@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ service.title }} — AdvIT Service{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Left Column: Service Details & Reviews -->
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm mb-4" style="border-radius: 24px;">
+        <span class="badge badge-adv badge-adv-primary text-uppercase mb-2" style="width: fit-content;">{{ service.category }}</span>
+        <h2 class="fw-bold mb-3">{{ service.title }}</h2>
+
+        <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+          <div class="avatar-placeholder" style="width: 44px; height: 44px;">
+            {{ service.freelancer.user.username|make_list|first|upper }}
+          </div>
+          <div>
+            <div class="fw-bold">{{ service.freelancer.user.display_name }}</div>
+            <div class="small text-muted">{{ service.freelancer.title }} • <span class="text-warning"><i class="bi bi-star-fill"></i> {{ service.rating }}</span> ({{ service.orders_count }} orders completed)</div>
+          </div>
+        </div>
+
+        {% if service.cover_image %}
+          <img src="{{ service.cover_image.url }}" class="img-fluid rounded-4 mb-4" alt="{{ service.title }}" style="max-height: 400px; width: 100%; object-fit: cover;">
+        {% endif %}
+
+        <h5 class="fw-bold mb-3">About This Service</h5>
+        <div class="text-dark lh-lg mb-5" style="white-space: pre-line;">{{ service.description }}</div>
+
+        <!-- 3-Tier Package Comparison Table -->
+        <h5 class="fw-bold mb-3">Compare Packages</h5>
+        <div class="table-responsive mb-4">
+          <table class="table table-bordered text-center align-middle">
+            <thead class="table-light">
+              <tr>
+                <th class="text-start">Package</th>
+                <th>Basic</th>
+                <th>Standard</th>
+                <th>Premium</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-start fw-bold">Price</td>
+                <td class="text-primary fw-bold">${{ basic_pkg.price|default:"--" }}</td>
+                <td class="text-primary fw-bold">${{ standard_pkg.price|default:"--" }}</td>
+                <td class="text-primary fw-bold">${{ premium_pkg.price|default:"--" }}</td>
+              </tr>
+              <tr>
+                <td class="text-start">Delivery Time</td>
+                <td>{{ basic_pkg.delivery_days|default:"--" }} Days</td>
+                <td>{{ standard_pkg.delivery_days|default:"--" }} Days</td>
+                <td>{{ premium_pkg.delivery_days|default:"--" }} Days</td>
+              </tr>
+              <tr>
+                <td class="text-start">Revisions</td>
+                <td>{{ basic_pkg.revisions|default:"1" }}</td>
+                <td>{{ standard_pkg.revisions|default:"3" }}</td>
+                <td>{{ premium_pkg.revisions|default:"5" }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Interactive Tabbed Package Selector -->
+    <div class="col-lg-4">
+      <div class="card card-adv p-4 border-0 shadow-sm sticky-top" style="top: 90px; border-radius: 20px;">
+        <!-- Package Tabs -->
+        <ul class="nav nav-pills nav-fill mb-3 nav-pills-adv" id="packageTabs" role="tablist">
+          <li class="nav-item">
+            <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic-pkg" type="button">Basic</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="standard-tab" data-bs-toggle="tab" data-bs-target="#standard-pkg" type="button">Standard</button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" id="premium-tab" data-bs-toggle="tab" data-bs-target="#premium-pkg" type="button">Premium</button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="packageTabsContent">
+          <!-- Basic Tier -->
+          {% if basic_pkg %}
+            <div class="tab-pane fade show active" id="basic-pkg">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">{{ basic_pkg.name }}</h5>
+                <div class="display-6 fw-bold text-primary" style="font-size: 1.8rem;">${{ basic_pkg.price }}</div>
+              </div>
+              <p class="text-muted small mb-3">{{ basic_pkg.description }}</p>
+              <div class="d-flex gap-3 text-muted small mb-3">
+                <span><i class="bi bi-clock me-1"></i> {{ basic_pkg.delivery_days }} Days Delivery</span>
+                <span><i class="bi bi-arrow-repeat me-1"></i> {{ basic_pkg.revisions }} Revisions</span>
+              </div>
+              <ul class="list-unstyled small mb-4 d-flex flex-column gap-2">
+                {% for feat in basic_pkg.features %}
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{ feat }}</li>
+                {% empty %}
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>Core Deliverable</li>
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>Source Files</li>
+                {% endfor %}
+              </ul>
+              <a href="{% url 'services:checkout' package_id=basic_pkg.id %}" class="btn btn-adv-primary w-100 py-3 fw-bold">
+                Continue (${{ basic_pkg.price }})
+              </a>
+            </div>
+          {% endif %}
+
+          <!-- Standard Tier -->
+          {% if standard_pkg %}
+            <div class="tab-pane fade" id="standard-pkg">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">{{ standard_pkg.name }}</h5>
+                <div class="display-6 fw-bold text-primary" style="font-size: 1.8rem;">${{ standard_pkg.price }}</div>
+              </div>
+              <p class="text-muted small mb-3">{{ standard_pkg.description }}</p>
+              <div class="d-flex gap-3 text-muted small mb-3">
+                <span><i class="bi bi-clock me-1"></i> {{ standard_pkg.delivery_days }} Days Delivery</span>
+                <span><i class="bi bi-arrow-repeat me-1"></i> {{ standard_pkg.revisions }} Revisions</span>
+              </div>
+              <ul class="list-unstyled small mb-4 d-flex flex-column gap-2">
+                {% for feat in standard_pkg.features %}
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{ feat }}</li>
+                {% empty %}
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>Complete Package Deliverable</li>
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>API Integrations & Source Code</li>
+                {% endfor %}
+              </ul>
+              <a href="{% url 'services:checkout' package_id=standard_pkg.id %}" class="btn btn-adv-primary w-100 py-3 fw-bold">
+                Continue (${{ standard_pkg.price }})
+              </a>
+            </div>
+          {% endif %}
+
+          <!-- Premium Tier -->
+          {% if premium_pkg %}
+            <div class="tab-pane fade" id="premium-pkg">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h5 class="fw-bold mb-0">{{ premium_pkg.name }}</h5>
+                <div class="display-6 fw-bold text-primary" style="font-size: 1.8rem;">${{ premium_pkg.price }}</div>
+              </div>
+              <p class="text-muted small mb-3">{{ premium_pkg.description }}</p>
+              <div class="d-flex gap-3 text-muted small mb-3">
+                <span><i class="bi bi-clock me-1"></i> {{ premium_pkg.delivery_days }} Days Delivery</span>
+                <span><i class="bi bi-arrow-repeat me-1"></i> {{ premium_pkg.revisions }} Revisions</span>
+              </div>
+              <ul class="list-unstyled small mb-4 d-flex flex-column gap-2">
+                {% for feat in premium_pkg.features %}
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>{{ feat }}</li>
+                {% empty %}
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>Full Enterprise Production Solution</li>
+                  <li><i class="bi bi-check-circle-fill text-success me-2"></i>Full Support & Deployment</li>
+                {% endfor %}
+              </ul>
+              <a href="{% url 'services:checkout' package_id=premium_pkg.id %}" class="btn btn-adv-primary w-100 py-3 fw-bold">
+                Continue (${{ premium_pkg.price }})
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

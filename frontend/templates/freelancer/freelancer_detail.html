@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ freelancer.user.display_name }} — AdvIT Freelancer Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row g-4">
+    <!-- Main Profile Info -->
+    <div class="col-lg-8">
+      <div class="card card-adv p-4 p-md-5 border-0 shadow-sm mb-4" style="border-radius: 24px;">
+        <div class="d-flex flex-column flex-md-row align-items-md-center gap-4 mb-4 pb-4 border-bottom">
+          {% if freelancer.user.avatar %}
+            <img src="{{ freelancer.user.avatar.url }}" alt="{{ freelancer.user.display_name }}" class="avatar-img avatar-xl">
+          {% else %}
+            <div class="avatar-placeholder avatar-xl fs-2">
+              {{ freelancer.user.username|make_list|first|upper }}
+            </div>
+          {% endif %}
+
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="badge badge-adv badge-adv-primary">VERIFIED FREELANCER</span>
+              <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-25">{{ freelancer.get_availability_display }}</span>
+            </div>
+            <h2 class="fw-bold mb-1">{{ freelancer.user.display_name }}</h2>
+            <p class="text-primary fw-semibold mb-2">{{ freelancer.title }}</p>
+            <div class="d-flex align-items-center gap-3 text-muted small">
+              <span class="text-warning"><i class="bi bi-star-fill"></i> {{ freelancer.rating }} ({{ freelancer.total_reviews_count }} reviews)</span>
+              <span><i class="bi bi-geo-alt me-1"></i> {{ freelancer.location|default:"Global" }}</span>
+              <span><i class="bi bi-check2-circle me-1"></i> {{ freelancer.completed_projects_count }} Completed Projects</span>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="fw-bold mb-3">Professional Bio</h5>
+        <div class="text-dark lh-lg mb-4" style="white-space: pre-line;">{{ freelancer.bio|default:"Experienced software and AI specialist ready to deliver exceptional results." }}</div>
+
+        <!-- Skills Matrix -->
+        <h5 class="fw-bold mb-3">Skills & Proficiencies</h5>
+        <div class="d-flex flex-wrap gap-2 mb-4">
+          {% for fs in freelancer.freelancer_skills.all %}
+            <div class="badge bg-light text-dark border p-2 d-flex align-items-center gap-2">
+              <i class="bi {{ fs.skill.icon }} text-primary"></i>
+              <span>{{ fs.skill.name }}</span>
+              <span class="badge bg-primary text-white" style="font-size: 0.65rem;">{{ fs.get_proficiency_display }}</span>
+            </div>
+          {% empty %}
+            <span class="text-muted small">Full-Stack Development, AI Workflows</span>
+          {% endfor %}
+        </div>
+
+        <!-- Portfolio Items -->
+        {% if freelancer.portfolio_items.all %}
+          <h5 class="fw-bold mb-3">Portfolio Showcases</h5>
+          <div class="row g-3 mb-4">
+            {% for item in freelancer.portfolio_items.all %}
+              <div class="col-md-6">
+                <div class="card card-adv h-100 p-3 border">
+                  {% if item.image %}
+                    <img src="{{ item.image.url }}" class="rounded mb-2" style="height: 140px; object-fit: cover;">
+                  {% endif %}
+                  <h6 class="fw-bold mb-1">{{ item.title }}</h6>
+                  <p class="text-muted small mb-2">{{ item.description|truncatewords:12 }}</p>
+                  {% if item.project_url %}
+                    <a href="{{ item.project_url }}" target="_blank" class="small text-primary fw-bold text-decoration-none mt-auto">
+                      <i class="bi bi-box-arrow-up-right me-1"></i> View Live Demo
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Reviews Received -->
+        <h5 class="fw-bold mb-3">Client Reviews ({{ freelancer.total_reviews_count }})</h5>
+        <div class="d-flex flex-column gap-3">
+          {% for rev in reviews %}
+            <div class="p-3 bg-light rounded-3 border">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="fw-bold small">{{ rev.reviewer.display_name }}</div>
+                <div class="text-warning small">
+                  {% for i in "12345" %}
+                    <i class="bi bi-star-fill {% if forloop.counter <= rev.rating %}text-warning{% else %}text-muted opacity-25{% endif %}"></i>
+                  {% endfor %}
+                </div>
+              </div>
+              <p class="text-muted small mb-0">{{ rev.comment }}</p>
+            </div>
+          {% empty %}
+            <p class="text-muted small">No client reviews submitted yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Contact/Hire Sidebar -->
+    <div class="col-lg-4">
+      <div class="card card-adv p-4 border-0 shadow-sm sticky-top" style="top: 90px; border-radius: 20px;">
+        <div class="text-center mb-4">
+          <small class="text-muted text-uppercase fw-bold">Hourly Rate</small>
+          <div class="display-5 fw-bold text-primary">${{ freelancer.hourly_rate }}<span class="fs-6 text-muted">/hr</span></div>
+        </div>
+
+        {% if user.is_authenticated and user != freelancer.user %}
+          <a href="{% url 'chat:start_conversation' user_id=freelancer.user.id %}" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6 mb-2">
+            <i class="bi bi-chat-dots-fill me-2"></i> Message / Hire
+          </a>
+        {% elif not user.is_authenticated %}
+          <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-adv-primary w-100 py-3 fw-bold fs-6 mb-2">
+            Log In to Contact
+          </a>
+        {% endif %}
+
+        <div class="border-top pt-3 mt-3">
+          <div class="small text-muted mb-2"><i class="bi bi-envelope me-2"></i> Verified Email</div>
+          <div class="small text-muted mb-2"><i class="bi bi-shield-check text-success me-2"></i> Identity Confirmed</div>
+          <div class="small text-muted"><i class="bi bi-lightning-charge text-warning me-2"></i> Fast Responder</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
